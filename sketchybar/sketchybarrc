@@ -59,12 +59,6 @@ sketchybar --default "${default[@]}"
 # We add some regular items to the left side of the bar, where
 # only the properties deviating from the current defaults need to be set
 
-sketchybar --add item chevron left \
-           --set chevron icon= label.drawing=off \
-           --add item front_app left \
-           --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
-           --subscribe front_app front_app_switched
-
 ##### Adding Right Items #####
 # In the same way as the left items we can add items to the right side.
 # Additional position (e.g. center) are available, see:
@@ -83,7 +77,14 @@ sketchybar --add item clock right \
            --subscribe volume volume_change \
            --add item battery right \
            --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-           --subscribe battery system_woke power_source_change
+           --subscribe battery system_woke power_source_change \
+           --add item vpn left \
+           --set vpn update_freq=5 script="$PLUGIN_DIR/vpn.sh" \
+           --add item network left \
+           --set network update_freq=2 script="$PLUGIN_DIR/network.sh" \
+           --add item wifi left \
+           --set wifi update_freq=5 script="$PLUGIN_DIR/wifi.sh" \
+           --subscribe wifi wifi_change system_woke
 
 
 
