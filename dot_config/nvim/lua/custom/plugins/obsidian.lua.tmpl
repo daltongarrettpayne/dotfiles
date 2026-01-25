@@ -8,14 +8,23 @@ return {
   },
   opts = {
     workspaces = {
+{{- if eq .machineType "personal" }}
       {
         name = 'personal',
-        path = '/Users/daltonpayne/Favorites/LIFE-iCloud',
+        path = '{{ .chezmoi.homeDir }}/Favorites/LIFE-iCloud',
       },
       {
         name = 'work',
-        path = '/Users/daltonpayne/Favorites/WORK-OneDrive',
+        path = '{{ .chezmoi.homeDir }}/Favorites/WORK-OneDrive',
       },
+{{- else }}
+      -- Add work machine obsidian vaults here if needed
+      -- Example:
+      -- {
+      --   name = 'work-notes',
+      --   path = '{{ .chezmoi.homeDir }}/Documents/notes',
+      -- },
+{{- end }}
     },
     ui = {
       enable = true,
