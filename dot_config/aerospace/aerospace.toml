@@ -1,0 +1,119 @@
+# -------------------- Global Settings --------------------
+start-at-login = true
+after-startup-command = [
+  'exec-and-forget borders active_color=0xffe1e3e4 inactive_color=0xff494d64 width=18.0'
+]
+
+# Notify Sketchybar about workspace change
+exec-on-workspace-change = ['/bin/bash', '-c',
+  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
+  'exec-and-forget borders active_color=0xffe1e3e4 inactive_color=0xff494d64 width=0'
+]
+
+# -------------------- Gaps Configuration --------------------
+[gaps]
+inner.horizontal = 20
+inner.vertical = 20
+outer.left = 20
+outer.bottom = 20
+outer.top = 50
+outer.right = 20
+
+# -------------------- Main Mode Bindings --------------------
+[mode.main.binding]
+# Navigate windows using vim keys
+alt-h = 'focus --boundaries-action wrap-around-the-workspace left'
+alt-j = 'focus --boundaries-action wrap-around-the-workspace down'
+alt-k = 'focus --boundaries-action wrap-around-the-workspace up'
+alt-l = 'focus --boundaries-action wrap-around-the-workspace right'
+
+# Move windows using vim keys
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+alt-backslash = 'fullscreen'
+alt-f = 'layout floating tiling'
+
+alt-shift-left = 'join-with left'
+alt-shift-down = 'join-with down'
+alt-shift-up = 'join-with up'
+alt-shift-right = 'join-with right'
+
+# Workspaces
+alt-1 = 'workspace 01-dev'
+alt-2 = 'workspace 02-web'
+alt-3 = 'workspace 03-float'
+alt-4 = 'workspace 04-comms'
+
+# Move window to workspace
+alt-shift-1 = 'move-node-to-workspace 01-dev --focus-follows-window'
+alt-shift-2 = 'move-node-to-workspace 02-web --focus-follows-window'
+alt-shift-3 = 'move-node-to-workspace 03-float --focus-follows-window'
+alt-shift-4 = 'move-node-to-workspace 04-comms --focus-follows-window'
+
+# alt-tab = 'workspace-back-and-forth'
+# alt-slash = 'layout tiles horizontal vertical'
+alt-a = 'layout accordion tiles'
+
+alt-r = 'flatten-workspace-tree'
+alt-minus = 'resize smart -50'
+alt-equal = 'resize smart +50'
+
+alt-shift-semicolon = 'mode service'
+
+# -------------------- Service Mode Bindings --------------------
+[mode.service.binding]
+r = ['reload-config', 'mode main'] # reset layout
+
+# -------------------- Window Detection and Auto-Move Rules --------------------
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 01-dev'
+
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'
+run = 'move-node-to-workspace 01-dev'
+
+[[on-window-detected]]
+if.app-id = 'com.brave.Browser'
+run = 'move-node-to-workspace 02-web'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace 04-comms'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Outlook'
+run = 'move-node-to-workspace 04-comms'
+
+[[on-window-detected]]
+if.app-id = 'org.whispersystems.signal-desktop'
+run = 'move-node-to-workspace 04-comms'
+
+[[on-window-detected]]
+if.app-id = 'ch.protonmail.desktop'
+run = 'move-node-to-workspace 04-comms'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.MobileSMS'
+run = 'move-node-to-workspace 04-comms'
+
+[[on-window-detected]]
+if.app-id = 'pl.maketheweb.cleanshotx'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.ScreenContinuity'
+run = ['layout floating', 'move-node-to-workspace 03-float']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = ['layout floating', 'move-node-to-workspace 03-float']
+
+[[on-window-detected]]
+run = ['move-node-to-workspace 03-float']
+
+
+
