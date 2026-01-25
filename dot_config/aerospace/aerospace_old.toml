@@ -1,0 +1,240 @@
+# Reference: https://github.com/i3/i3/blob/next/etc/config
+
+# i3 doesn't have "normalizations" feature that why we disable them here.
+# But the feature is very helpful.
+# Normalizations eliminate all sorts of weird tree configurations that don't make sense.
+# Give normalizations a chance and enable them back.
+enable-normalization-flatten-containers = false
+enable-normalization-opposite-orientation-for-nested-containers = false
+
+# Mouse follows focus when focused monitor changes
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+[gaps]
+inner.horizontal = 20
+inner.vertical = 20
+outer.left = 20
+outer.bottom = 20
+outer.top = 10
+outer.right = 20
+
+[mode.main.binding]
+# You may first need to find the correct bundle ID for TypingMind by running this in your terminal:
+# osascript -e 'id of app "TypingMind"'
+# alt-a = 'exec-and-forget "open -b com.typingmind.macapp && sleep 0.3 && aerospace layout floating"'
+# alt-f = 'exec-and-forget "open -b com.apple.finder && aerospace layout floating"'
+
+# # See: https://nikitabobko.github.io/AeroSpace/goodies#open-a-new-window-with-applescript
+# alt-enter = '''exec-and-forget osascript -e '
+#     tell application "Terminal"
+#         do script
+#         activate
+#     end tell'
+#     '''
+
+# i3 wraps focus by default
+alt-h = 'focus --boundaries-action wrap-around-the-workspace left'
+alt-j = 'focus --boundaries-action wrap-around-the-workspace down'
+alt-k = 'focus --boundaries-action wrap-around-the-workspace up'
+alt-l = 'focus --boundaries-action wrap-around-the-workspace right'
+
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# Consider using 'join-with' command as a 'split' replacement if you want to enable
+# normalizations
+# alt-h = 'split horizontal'
+# alt-v = 'split vertical'
+
+alt-equal = 'fullscreen'
+# alt-minus = 'minimize'
+# alt-s = 'layout v_accordion'               # 'layout stacking' in i3
+# alt-w = 'layout h_accordion'               # 'layout tabbed' in i3
+# alt-e = 'layout tiles horizontal vertical' # 'layout toggle split' in i3
+
+alt-shift-space = 'layout floating tiling' # 'floating toggle' in i3
+
+# Not supported, because this command is redundant in AeroSpace mental model.
+# See: https://nikitabobko.github.io/AeroSpace/guide#floating-windows
+#alt-space = 'focus toggle_tiling_floating'
+
+# `focus parent`/`focus child` are not yet supported, and it's not clear whether they
+# should be supported at all https://github.com/nikitabobko/AeroSpace/issues/5
+# alt-a = 'focus parent'
+
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+# alt-5 = 'workspace 5'
+# alt-6 = 'workspace 6'
+# alt-7 = 'workspace 7'
+# alt-8 = 'workspace 8'
+# alt-9 = 'workspace 9'
+# # alt-a = 'workspace A' # In your config, you can drop workspace bindings that you don't need
+# alt-b = 'workspace B'
+# alt-c = 'workspace C'
+# alt-d = 'workspace D'
+# # alt-e = 'workspace E'
+# # alt-f = 'workspace F'
+# alt-g = 'workspace G'
+# alt-i = 'workspace I'
+# alt-m = 'workspace M'
+# alt-n = 'workspace N'
+# alt-o = 'workspace O'
+# alt-p = 'workspace P'
+# alt-q = 'workspace Q'
+# alt-r = 'workspace R'
+# # alt-s = 'workspace S'
+# alt-t = 'workspace T'
+# alt-u = 'workspace U'
+# # alt-v = 'workspace V'
+# alt-w = 'workspace W'
+# alt-x = 'workspace X'
+# alt-y = 'workspace Y'
+# alt-z = 'workspace Z'
+# alt-backslash = 'workspace \'
+
+# See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+# alt-shift-5 = 'move-node-to-workspace 5'
+# alt-shift-6 = 'move-node-to-workspace 6'
+# alt-shift-7 = 'move-node-to-workspace 7'
+# alt-shift-8 = 'move-node-to-workspace 8'
+# alt-shift-9 = 'move-node-to-workspace 9'
+# alt-shift-a = 'move-node-to-workspace A'
+# alt-shift-b = 'move-node-to-workspace B'
+# alt-shift-c = 'move-node-to-workspace C'
+# alt-shift-d = 'move-node-to-workspace D'
+# # alt-shift-e = 'move-node-to-workspace E'
+# alt-shift-f = 'move-node-to-workspace F'
+# alt-shift-g = 'move-node-to-workspace G'
+# alt-shift-i = 'move-node-to-workspace I'
+# alt-shift-m = 'move-node-to-workspace M'
+# alt-shift-n = 'move-node-to-workspace N'
+# alt-shift-o = 'move-node-to-workspace O'
+# alt-shift-p = 'move-node-to-workspace P'
+# alt-shift-q = 'move-node-to-workspace Q'
+# alt-shift-r = 'move-node-to-workspace R'
+# # alt-shift-s = 'move-node-to-workspace S'
+# alt-shift-t = 'move-node-to-workspace T'
+# alt-shift-u = 'move-node-to-workspace U'
+# # alt-shift-v = 'move-node-to-workspace V'
+# alt-shift-w = 'move-node-to-workspace W'
+# alt-shift-x = 'move-node-to-workspace X'
+# alt-shift-y = 'move-node-to-workspace Y'
+# alt-shift-z = 'move-node-to-workspace Z'
+# alt-shift-backslash = 'move-node-to-workspace \'
+
+
+# alt-1 = 'workspace 1'
+# alt-2 = 'workspace 2'
+# alt-3 = 'workspace 3'
+# alt-q = 'workspace 4'
+# alt-w = 'workspace 5'
+# alt-e = 'workspace 6'
+# alt-a = 'workspace 7'
+# alt-8 = 'workspace 8'
+# alt-9 = 'workspace 9'
+# alt-0 = 'workspace 10'
+
+# alt-shift-1 = 'move-node-to-workspace 1'
+# alt-shift-2 = 'move-node-to-workspace 2'
+# alt-shift-3 = 'move-node-to-workspace 3'
+# alt-shift-q = 'move-node-to-workspace 4'
+# alt-shift-w = 'move-node-to-workspace 5'
+# alt-shift-e = 'move-node-to-workspace 6'
+# alt-shift-a = 'move-node-to-workspace 7'
+# alt-shift-8 = 'move-node-to-workspace 8'
+# alt-shift-9 = 'move-node-to-workspace 9'
+# alt-shift-0 = 'move-node-to-workspace 10'
+
+alt-shift-slash = 'reload-config'
+
+# alt-r = 'mode resize'
+
+
+# [mode.resize.binding]
+# h = 'resize width -50'
+# j = 'resize height +50'
+# k = 'resize height -50'
+# l = 'resize width +50'
+# enter = 'mode main'
+# esc = 'mode main'
+
+[mode.service.binding]
+esc = ['reload-config', 'mode main']
+backspace = ['close-all-windows-but-current', 'mode main']
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+if.app-name-regex-substring = 'settings'
+if.window-title-regex-substring = 'substring'
+if.workspace = 'workspace-name'
+if.during-aerospace-startup = true
+check-further-callbacks = true
+run = ['layout floating', 'move-node-to-workspace S'] # The callback itself
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Outlook'
+run = 'move-node-to-workspace 4'
+
+# [[on-window-detected]]
+#     if.app-id = 'com.apple.iCal'
+#     run = 'move-node-to-workspace C' 
+
+# [[on-window-detected]]
+# if.app-id = 'com.jinghaoshe.qspace.pro'
+# run = 'move-node-to-workspace F' 
+
+# [[on-window-detected]]
+#     if.app-id = 'com.todoist.mac.Todoist'
+#     run = 'move-node-to-workspace T' 
+
+# [[on-window-detected]]
+#     if.app-id = 'ch.protonmail.desktop'
+#     run = 'move-node-to-workspace P' 
+
+# [[on-window-detected]]
+# 	if.app-id = 'ch.protonvpn.mac'
+# 	run= 'move-node-to-workspace P'
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+run = 'move-node-to-workspace 3'
+
+# [[on-window-detected]]
+#     if.app-id = 'com.apple.MobileSMS'
+#     run = 'move-node-to-workspace M' 
+
+# [[on-window-detected]]
+#     if.app-id = 'org.whispersystems.signal-desktop'
+#     run = 'move-node-to-workspace M' 
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefox'
+run = 'move-node-to-workspace 2'
+
+# [[on-window-detected]]
+# if.app-id = 'com.brave.Browser.app.clfhjkcnoeekbaofndbgbdkghmjhecgo'
+# run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.citrix.receiver.icaviewer.mac'
+run = 'move-node-to-workspace 4'

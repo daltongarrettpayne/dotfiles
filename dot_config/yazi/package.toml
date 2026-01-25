@@ -1,0 +1,7 @@
+[[plugin.deps]]
+use = "yefengwu/dual-pane"
+rev = "6afb5e5"
+hash = "11b2ccf40b2a80cbb9664906b5660045"
+
+[flavor]
+deps = []
