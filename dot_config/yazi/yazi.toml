@@ -1,3 +1,7 @@
+[manager]
+# Force squared borders (consistent across yazi versions)
+border_style = "plain"
+
 [plugin]
 prepend_previewers = [
 	{ mime = "image/tiff", run = "magick" },
