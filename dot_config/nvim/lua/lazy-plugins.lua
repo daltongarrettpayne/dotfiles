@@ -53,7 +53,7 @@ require('lazy').setup({
 
   require 'custom.plugins.none-ls',
 
-  require 'custom.plugins.vim-tmux-navigator',
+  require 'custom.plugins.smart-splits',
 
   require 'custom.plugins.nvim-surround',
 
