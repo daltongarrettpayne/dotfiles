@@ -52,6 +52,9 @@ if command -v rbenv &> /dev/null; then
   eval "$(rbenv init - zsh)"
 fi
 
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 # ┌─────────────────────────────────────────┐
 # │ 4. Completion System                    │
 # └─────────────────────────────────────────┘

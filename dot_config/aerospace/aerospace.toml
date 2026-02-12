@@ -81,23 +81,23 @@ if.app-id = 'com.brave.Browser'
 run = 'move-node-to-workspace 02-web'
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.teams2'
+if.app-id = 'com.tinyspeck.slackmacgap'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.Outlook'
+if.app-id = 'com.apple.mail'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'org.whispersystems.signal-desktop'
+if.app-id = 'com.granola.app'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'ch.protonmail.desktop'
+if.app-id = 'notion.mail.id'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.MobileSMS'
+if.app-id = 'com.cron.electron'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
