@@ -1,51 +1,14 @@
 # ============================================
-# ZSH Configuration
-# Dalton Payne's dotfiles
+# Minimal ZSH Configuration
 # ============================================
 
-# ┌─────────────────────────────────────────┐
-# │ 1. Shell Options                        │
-# └─────────────────────────────────────────┘
-
-# History configuration
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-setopt APPEND_HISTORY           # Append to history file
-setopt SHARE_HISTORY            # Share history between sessions
-setopt HIST_IGNORE_DUPS         # Don't record duplicates
-setopt HIST_IGNORE_SPACE        # Don't record commands starting with space
-setopt HIST_VERIFY              # Show command before executing from history
-
-# Directory navigation
-setopt AUTO_CD                  # cd by typing directory name
-setopt AUTO_PUSHD               # Push directories onto stack
-setopt PUSHD_IGNORE_DUPS        # Don't push duplicates
-setopt PUSHD_SILENT             # Don't print directory stack
-
-# Completion
-setopt ALWAYS_TO_END            # Move cursor to end after completion
-setopt AUTO_MENU                # Show completion menu on tab
-setopt COMPLETE_IN_WORD         # Complete from both ends of word
-
-# ┌─────────────────────────────────────────┐
-# │ 2. Environment Variables                │
-# └─────────────────────────────────────────┘
-
-# Disable telemetry
-export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1
-
-# ┌─────────────────────────────────────────┐
-# │ 3. PATH Configuration                   │
-# └─────────────────────────────────────────┘
-
-# Local bin
+# ──────── PATH ────────
 export PATH="$HOME/.local/bin:$PATH"
 
-# Python from Homebrew (if installed)
-if command -v brew &> /dev/null; then
-  export PATH="$(brew --prefix python)/libexec/bin:$PATH"
-fi
+# ──────── History ────────
+HISTFILE=~/.zsh_history
+HISTSIZE=5000
+SAVEHIST=5000
 
 # rbenv (must be early for PATH to work correctly)
 if command -v rbenv &> /dev/null; then
@@ -55,6 +18,7 @@ fi
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+
 # ┌─────────────────────────────────────────┐
 # │ 4. Completion System                    │
 # └─────────────────────────────────────────┘
@@ -72,91 +36,27 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"    # Use LS_COLORS
 # │ 5. Plugins (load order matters!)       │
 # └─────────────────────────────────────────┘
 
-# Load syntax highlighting (should be near the end of plugins)
-if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
 # Load autosuggestions
 if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
-# fzf - must load BEFORE zsh-vi-mode to preserve keybindings
-if command -v brew &> /dev/null; then
-  if [[ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh" ]]; then
-    source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
-  fi
-  if [[ -f "$(brew --prefix)/opt/fzf/shell/completion.zsh" ]]; then
-    source "$(brew --prefix)/opt/fzf/shell/completion.zsh"
-  fi
+# Load syntax highlighting (should be near the end of plugins)
+if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
-# ┌─────────────────────────────────────────┐
-# │ 6. zsh-vi-mode (MUST BE LAST PLUGIN)   │
-# └─────────────────────────────────────────┘
-# Note: This plugin aggressively overrides keybindings.
-# Any keybindings set after this must use zvm_after_init()
-
-# Define post-init function for vi-mode
-function zvm_after_init() {
-  # Tmux which-key integration (set AFTER vi-mode loads)
-  if command -v tmux &> /dev/null; then
-    tmux-which-key() { tmux show-wk-menu-root ; }
-    zle -N tmux-which-key
-    bindkey -M vicmd " " tmux-which-key
-  fi
-}
-
-# Load zsh-vi-mode (LAST PLUGIN!)
-if command -v brew &> /dev/null; then
-  if [[ -f "$(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh" ]]; then
-    source "$(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
-  fi
-fi
-
-# ┌─────────────────────────────────────────┐
-# │ 7. Aliases                              │
-# └─────────────────────────────────────────┘
-
-# ──────── Core Aliases (all machines) ────────
-alias cl="clear"
+# ──────── Aliases ────────
 alias v="nvim"
 alias lg="lazygit"
-alias q="logout"
+alias cl="clear"
 
-# Zsh config shortcuts
-alias ep="nvim ~/.zshrc"
-alias sp="source ~/.zshrc"
-
-# Python virtual environment
-alias s="source .venv/bin/activate"
-alias d="deactivate"
-
-# Tmux
-alias st="tmux source-file ~/.tmux.conf"
-
-# Enhanced ls (only if lsd is installed)
-if command -v lsd &> /dev/null; then
-  alias ls="lsd -ltg"
-fi
+# Enhanced ls (if available)
+command -v lsd &> /dev/null && alias ls="lsd -ltg"
 
 {{- if eq .machineType "personal" }}
-
-# ──────── Personal Machine Aliases ────────
+# Personal shortcuts
 alias fav="cd ~/Favorites/"
-alias lf="cd {{ .chezmoi.homeDir }}/Favorites/LIFE-iCloud"
-alias jrnl='cd "{{ .chezmoi.homeDir }}/Library/Mobile Documents/com~apple~CloudDocs/iCloud/01-LIFE/20-29-Personal-Library/22 Personal Documents/22.01 Journal" && cl'
-
-# Personal tools (conditional on installation)
-command -v simplelogin &> /dev/null && alias sl="simplelogin"
-command -v aicommits &> /dev/null && alias aic="aicommits"
-command -v databricks &> /dev/null && alias db="databricks"
-
-# NAPS2 scanner app
-if [[ -f "/Applications/NAPS2.app/Contents/MacOS/NAPS2" ]]; then
-  alias naps2="/Applications/NAPS2.app/Contents/MacOS/NAPS2 console"
-fi
 {{- end }}
 
 {{- if eq .machineType "work" }}
@@ -236,4 +136,3 @@ fi
 # ┌─────────────────────────────────────────┐
 # │ End of Configuration                    │
 # └─────────────────────────────────────────┘
-
