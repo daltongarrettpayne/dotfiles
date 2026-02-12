@@ -10,13 +10,41 @@ HISTFILE=~/.zsh_history
 HISTSIZE=5000
 SAVEHIST=5000
 
-# ──────── Plugins ────────
-# Load if installed, fail gracefully if not
-[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# rbenv (must be early for PATH to work correctly)
+if command -v rbenv &> /dev/null; then
+  eval "$(rbenv init - zsh)"
+fi
 
-[[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# ┌─────────────────────────────────────────┐
+# │ 4. Completion System                    │
+# └─────────────────────────────────────────┘
+
+# Initialize completion system
+autoload -Uz compinit
+compinit
+
+# Completion styling
+zstyle ':completion:*' menu select                          # Use menu selection
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'        # Case insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"    # Use LS_COLORS
+
+# ┌─────────────────────────────────────────┐
+# │ 5. Plugins (load order matters!)       │
+# └─────────────────────────────────────────┘
+
+# Load autosuggestions
+if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+# Load syntax highlighting (should be near the end of plugins)
+if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
   source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
 
 # ──────── Aliases ────────
 alias v="nvim"
@@ -31,5 +59,80 @@ command -v lsd &> /dev/null && alias ls="lsd -ltg"
 alias fav="cd ~/Favorites/"
 {{- end }}
 
-# ──────── Prompt ────────
-command -v starship &> /dev/null && eval "$(starship init zsh)"
+{{- if eq .machineType "work" }}
+
+# ──────── Work Machine Aliases ────────
+# Add work-specific aliases here
+
+{{- end }}
+
+# ┌─────────────────────────────────────────┐
+# │ 8. Functions                            │
+# └─────────────────────────────────────────┘
+
+# ──────── Enhanced cd with auto-ls ────────
+# Automatically list directory contents after cd
+cd() {
+  builtin cd "$@" || return  # Exit if cd fails
+
+  # Only ls if lsd is available, otherwise skip
+  if command -v lsd &> /dev/null; then
+    lsd -ltg
+  else
+    ls -lh
+  fi
+}
+
+# ──────── Yazi file manager integration ────────
+# Exit yazi and cd to the last directory
+function y() {
+  # Require yazi to be installed
+  if ! command -v yazi &> /dev/null; then
+    echo "Error: yazi is not installed"
+    return 1
+  fi
+
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+
+  if IFS= read -r -d '' cwd < "$tmp" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+
+  rm -f -- "$tmp"
+}
+
+# ──────── Aerospace window fuzzy finder ────────
+# Use fzf to quickly switch between aerospace windows
+ff() {
+  if ! command -v aerospace &> /dev/null; then
+    echo "Error: aerospace is not installed"
+    return 1
+  fi
+
+  if ! command -v fzf &> /dev/null; then
+    echo "Error: fzf is not installed"
+    return 1
+  fi
+
+  aerospace list-windows --all | \
+    fzf --bind 'enter:execute(aerospace focus --window-id {1})+abort'
+}
+
+# ┌─────────────────────────────────────────┐
+# │ 9. Prompt & Additional Tools            │
+# └─────────────────────────────────────────┘
+
+# Starship prompt (load near end)
+if command -v starship &> /dev/null; then
+  eval "$(starship init zsh)"
+fi
+
+# Envman environment manager (if installed)
+if [[ -s "$HOME/.config/envman/load.sh" ]]; then
+  source "$HOME/.config/envman/load.sh"
+fi
+
+# ┌─────────────────────────────────────────┐
+# │ End of Configuration                    │
+# └─────────────────────────────────────────┘

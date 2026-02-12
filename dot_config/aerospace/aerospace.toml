@@ -1,13 +1,10 @@
 # -------------------- Global Settings --------------------
 start-at-login = true
-after-startup-command = [
-  'exec-and-forget borders active_color=0xffe1e3e4 inactive_color=0xff494d64 width=18.0'
-]
+after-startup-command = []
 
 # Notify Sketchybar about workspace change
 exec-on-workspace-change = ['/bin/bash', '-c',
-  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
-  'exec-and-forget borders active_color=0xffe1e3e4 inactive_color=0xff494d64 width=0'
+  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
 ]
 
 # -------------------- Gaps Configuration --------------------
@@ -21,11 +18,11 @@ outer.right = 20
 
 # -------------------- Main Mode Bindings --------------------
 [mode.main.binding]
-# Navigate windows using vim keys
-alt-h = 'focus --boundaries-action wrap-around-the-workspace left'
-alt-j = 'focus --boundaries-action wrap-around-the-workspace down'
-alt-k = 'focus --boundaries-action wrap-around-the-workspace up'
-alt-l = 'focus --boundaries-action wrap-around-the-workspace right'
+# Navigate windows using vim keys — chains through nvim splits → tmux panes → aerospace windows
+alt-h = 'exec-and-forget /bin/bash ~/.config/aerospace/navigate.sh left'
+alt-j = 'exec-and-forget /bin/bash ~/.config/aerospace/navigate.sh down'
+alt-k = 'exec-and-forget /bin/bash ~/.config/aerospace/navigate.sh up'
+alt-l = 'exec-and-forget /bin/bash ~/.config/aerospace/navigate.sh right'
 
 # Move windows using vim keys
 alt-shift-h = 'move left'
@@ -81,23 +78,23 @@ if.app-id = 'com.brave.Browser'
 run = 'move-node-to-workspace 02-web'
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.teams2'
+if.app-id = 'com.tinyspeck.slackmacgap'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.Outlook'
+if.app-id = 'com.apple.mail'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'org.whispersystems.signal-desktop'
+if.app-id = 'com.granola.app'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'ch.protonmail.desktop'
+if.app-id = 'notion.mail.id'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.MobileSMS'
+if.app-id = 'com.cron.electron'
 run = 'move-node-to-workspace 04-comms'
 
 [[on-window-detected]]
