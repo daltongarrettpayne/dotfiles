@@ -10,6 +10,11 @@ config.color_scheme = "Tokyo Night"
 config.font = wezterm.font("JetBrains Mono", { weight = "Bold" })
 config.font_size = 16.5
 
+-- Override background to darker shade (for tmux dimming effect)
+config.colors = {
+	background = "#0f0f14",
+}
+
 config.window_padding = {
 	left = 3,
 	right = 3,
