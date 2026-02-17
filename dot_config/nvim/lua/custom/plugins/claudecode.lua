@@ -18,6 +18,15 @@ return {
             '<C-\\><C-n>',
             mode = 't',
             desc = 'Enter normal mode to scroll'
+          },
+          -- q in normal mode goes back to terminal mode instead of closing
+          q = {
+            'q',
+            function()
+              vim.cmd('startinsert')
+            end,
+            mode = 'n',
+            desc = 'Return to terminal mode'
           }
         }
       }
