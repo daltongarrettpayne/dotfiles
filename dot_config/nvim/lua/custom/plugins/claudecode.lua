@@ -2,10 +2,12 @@ return {
   'coder/claudecode.nvim',
   dependencies = { 'folke/snacks.nvim' },
   opts = {
-    diff = {
+    diff_opts = {
       vertical_split = true,
       auto_close_on_accept = true,
       keep_terminal_focus = false,
+      open_in_new_tab = true,
+      hide_terminal_in_new_tab = true,
     },
     terminal = {
       split_side = "right",
@@ -27,7 +29,16 @@ return {
             end,
             mode = 'n',
             desc = 'Return to terminal mode'
-          }
+          },
+          -- Send ESC to Claude Code terminal instead of exiting terminal mode
+          esc = {
+            '<Esc>',
+            function()
+              vim.api.nvim_chan_send(vim.b.terminal_job_id, '\x1b')
+            end,
+            mode = 't',
+            desc = 'Send ESC to Claude Code'
+          },
         }
       }
     }
