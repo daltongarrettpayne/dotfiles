@@ -24,5 +24,11 @@ return {
     vim.keymap.set('n', '<M-j>', require('smart-splits').move_cursor_down, { desc = 'Move to below split/pane/window' })
     vim.keymap.set('n', '<M-k>', require('smart-splits').move_cursor_up, { desc = 'Move to above split/pane/window' })
     vim.keymap.set('n', '<M-l>', require('smart-splits').move_cursor_right, { desc = 'Move to right split/pane/window' })
+
+    -- Terminal mode mappings for Claude Code and other terminal buffers
+    vim.keymap.set('t', '<M-h>', require('smart-splits').move_cursor_left, { desc = 'Move to left split/pane/window' })
+    vim.keymap.set('t', '<M-j>', require('smart-splits').move_cursor_down, { desc = 'Move to below split/pane/window' })
+    vim.keymap.set('t', '<M-k>', require('smart-splits').move_cursor_up, { desc = 'Move to above split/pane/window' })
+    vim.keymap.set('t', '<M-l>', require('smart-splits').move_cursor_right, { desc = 'Move to right split/pane/window' })
   end,
 }
