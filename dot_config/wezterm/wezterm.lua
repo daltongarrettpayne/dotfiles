@@ -27,4 +27,13 @@ config.set_environment_variables = {
 	VISUAL = "nvim",
 }
 
+-- SHIFT+Click to open links (bypasses tmux mouse grab)
+config.mouse_bindings = {
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "SHIFT",
+		action = wezterm.action.OpenLinkAtMouseCursor,
+	},
+}
+
 return config
