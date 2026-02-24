@@ -71,6 +71,8 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+vim.opt.shiftwidth = 4
+
 -- Dim entire neovim pane when tmux pane loses focus (requires focus-events on in tmux).
 -- Iterates every highlight group that has an explicit bg and replaces it with the
 -- tmux inactive bg color, then restores on FocusGained.
@@ -100,5 +102,3 @@ vim.api.nvim_create_autocmd('FocusLost', { group = dim_group, callback = dim_pan
 vim.api.nvim_create_autocmd('FocusGained', { group = dim_group, callback = undim_pane })
 
 -- vim: ts=2 sts=2 sw=2 et
-
-vim.opt.shiftwidth = 4

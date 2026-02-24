@@ -3,7 +3,6 @@ return {
   config = function()
     local iron = require 'iron.core'
     local common = require 'iron.fts.common'
-    local view = require 'iron.view'
     local venv = os.getenv 'VIRTUAL_ENV'
     local python_path
 
@@ -21,7 +20,6 @@ return {
 
     iron.setup {
       config = {
-        repl_open_cmd = view.split '40%',
         scratch_repl = true,
         repl_definition = {
           sh = {
