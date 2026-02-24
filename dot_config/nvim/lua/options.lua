@@ -71,6 +71,34 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Dim entire neovim pane when tmux pane loses focus (requires focus-events on in tmux).
+-- Iterates every highlight group that has an explicit bg and replaces it with the
+-- tmux inactive bg color, then restores on FocusGained.
+local dim_bg = 0x0f0f14 -- matches tmux window-style inactive bg
+local saved_bgs = {}
+
+local function dim_pane()
+  saved_bgs = {}
+  for name, hl in pairs(vim.api.nvim_get_hl(0, {})) do
+    if not hl.link and hl.bg ~= nil then
+      saved_bgs[name] = hl.bg
+      vim.api.nvim_set_hl(0, name, vim.tbl_extend('force', hl, { bg = dim_bg }))
+    end
+  end
+end
+
+local function undim_pane()
+  for name, bg in pairs(saved_bgs) do
+    local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+    vim.api.nvim_set_hl(0, name, vim.tbl_extend('force', hl, { bg = bg }))
+  end
+  saved_bgs = {}
+end
+
+local dim_group = vim.api.nvim_create_augroup('TmuxDim', { clear = true })
+vim.api.nvim_create_autocmd('FocusLost', { group = dim_group, callback = dim_pane })
+vim.api.nvim_create_autocmd('FocusGained', { group = dim_group, callback = undim_pane })
+
 -- vim: ts=2 sts=2 sw=2 et
 
 vim.opt.shiftwidth = 4

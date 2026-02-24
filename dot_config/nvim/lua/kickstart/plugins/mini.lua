@@ -21,15 +21,25 @@ return {
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
       statusline.setup { use_icons = vim.g.have_nerd_font }
 
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
+      statusline.active = function()
+        local mode, mode_hl = statusline.section_mode { trunc_width = 120 }
+        local branch = vim.b.gitsigns_head or ''
+        local bufname = vim.api.nvim_buf_get_name(0)
+        local rel = vim.fn.fnamemodify(bufname, ':~:.')
+        if rel == '' then rel = '[No Name]' end
+        local modified = vim.bo.modified and ' [+]' or ''
+        local filename = rel .. modified
+
+        return statusline.combine_groups {
+          { hl = mode_hl, strings = { mode } },
+          { hl = 'MiniStatuslineDevinfo', strings = { branch } },
+          '%<',
+          { hl = 'MiniStatuslineFilename', strings = { filename } },
+          '%=',
+        }
       end
 
       -- ... and there is more!
