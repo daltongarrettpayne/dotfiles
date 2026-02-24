@@ -34,7 +34,16 @@ return {
         local rel = vim.fn.fnamemodify(bufname, ':~:.')
         if rel == '' then rel = '[No Name]' end
         local modified = vim.bo.modified and ' [+]' or ''
-        local filename = rel .. modified
+        local win_width = vim.fn.winwidth(0)
+
+        local filename
+        if win_width < 60 then
+          filename = vim.fn.fnamemodify(bufname, ':t') .. modified
+        elseif win_width < 100 then
+          filename = vim.fn.pathshorten(rel) .. modified
+        else
+          filename = rel .. modified
+        end
 
         return statusline.combine_groups {
           { hl = mode_hl, strings = { mode } },
