@@ -26,7 +26,9 @@ gui:
       - '#cad3f5'
   authorColors:
     '*': '#b7bdf8'
-
+git:
+  paging:
+    externalDiffCommand: difft
 os:
   editPreset: "nvim-remote"
   copyToClipboardCmd: "tmux load-buffer -"
