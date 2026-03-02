@@ -100,18 +100,17 @@ sketchybar --add item clock right \
 
 
 
-# sketchybar --add item timetrap center \
-#            --set timetrap update_freq=30 \
-#                           script="$PLUGIN_DIR/timetrap.sh" \
-#                           label.padding_left=10 \
-#                           label.padding_right=10 \
-#                           # background.color=0xff000000 \
-#                           icon=  # Optional: Timer icon (from Hack Nerd Font)
-#                           icon.padding_right=5 \
-#
+##### Focus Session #####
+sketchybar --add item focus center \
+           --set focus update_freq=1 \
+                       script="$PLUGIN_DIR/focus.sh" \
+                       drawing=off \
+                       icon= \
+                       label.padding_left=10 \
+                       label.padding_right=10
 
 ##### Adding Aerospace Workspaces #####
-source "$ITEM_DIR/aerospace.sh"
+# source "$ITEM_DIR/aerospace.sh"
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update

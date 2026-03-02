@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+SESSION_DIR="$HOME/.local/share/focus"
+SESSION_FILE="$SESSION_DIR/session"
+LOG_FILE="$SESSION_DIR/log.csv"
+
+mkdir -p "$SESSION_DIR"
+
+cmd="$1"
+
+case "$cmd" in
+  start)
+    task="$2"
+    duration="${3:-25}"
+
+    if [ -z "$task" ]; then
+      echo "Usage: focus start \"task name\" [minutes]"
+      exit 1
+    fi
+
+    if [ -f "$SESSION_FILE" ]; then
+      echo "Session already running. Run 'focus stop' first."
+      exit 1
+    fi
+
+    start=$(date +%s)
+    end=$((start + duration * 60))
+
+    printf '%s\n%s\n%s\n' "$task" "$start" "$end" > "$SESSION_FILE"
+
+    sketchybar --set focus drawing=on 2>/dev/null
+    echo "Started: $task ($duration min)"
+    ;;
+
+  stop)
+    if [ ! -f "$SESSION_FILE" ]; then
+      echo "No session running."
+      exit 1
+    fi
+
+    task=$(sed -n '1p' "$SESSION_FILE")
+    start=$(sed -n '2p' "$SESSION_FILE")
+    now=$(date +%s)
+    elapsed=$((now - start))
+
+    # Append to log: task, date, start time, end time, elapsed seconds
+    printf '"%s","%s","%s","%s",%d\n' \
+      "$task" \
+      "$(date -r "$start" '+%Y-%m-%d')" \
+      "$(date -r "$start" '+%H:%M:%S')" \
+      "$(date '+%H:%M:%S')" \
+      "$elapsed" >> "$LOG_FILE"
+
+    rm "$SESSION_FILE"
+    sketchybar --set focus drawing=off 2>/dev/null
+
+    printf 'Stopped: %s (%02d:%02d)\n' "$task" $((elapsed / 60)) $((elapsed % 60))
+    ;;
+
+  status)
+    if [ ! -f "$SESSION_FILE" ]; then
+      echo "No session running."
+      exit 0
+    fi
+
+    task=$(sed -n '1p' "$SESSION_FILE")
+    start=$(sed -n '2p' "$SESSION_FILE")
+    end=$(sed -n '3p' "$SESSION_FILE")
+    now=$(date +%s)
+    elapsed=$((now - start))
+    remaining=$((end - now))
+
+    echo "Task:    $task"
+    printf 'Elapsed: %02d:%02d\n' $((elapsed / 60)) $((elapsed % 60))
+
+    if [ "$remaining" -gt 0 ]; then
+      printf 'Left:    %02d:%02d\n' $((remaining / 60)) $((remaining % 60))
+    else
+      overtime=$((-remaining))
+      printf 'OVER:    +%02d:%02d\n' $((overtime / 60)) $((overtime % 60))
+    fi
+    ;;
+
+  log)
+    if [ ! -f "$LOG_FILE" ]; then
+      echo "No sessions logged yet."
+      exit 0
+    fi
+    column -t -s',' "$LOG_FILE"
+    ;;
+
+  *)
+    echo "Usage:"
+    echo "  focus start \"task name\" [minutes]   # default 25 min"
+    echo "  focus stop"
+    echo "  focus status"
+    echo "  focus log"
+    ;;
+esac
