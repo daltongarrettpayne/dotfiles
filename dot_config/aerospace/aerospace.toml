@@ -13,7 +13,7 @@ inner.horizontal = 30
 inner.vertical = 30
 outer.left = 30
 outer.bottom = 30
-outer.top = 60
+outer.top = 70
 outer.right = 30
 
 # -------------------- Main Mode Bindings --------------------
