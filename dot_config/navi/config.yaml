@@ -1,0 +1,13 @@
+shell:
+  command: zsh
+
+style:
+  tag:
+    color: cyan
+    width_percentage: 20
+  comment:
+    color: dark_grey
+    width_percentage: 40
+  snippet:
+    color: white
+    width_percentage: 40

@@ -137,6 +137,14 @@ if [[ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.z
   source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 fi
 
+# Navi interactive cheatsheet (Ctrl+G to invoke)
+if [[ -o interactive ]] && command -v navi &> /dev/null; then
+  export NAVI_FZF_OVERRIDES='--layout=reverse --no-select-1'
+  eval "$(navi widget zsh)"
+  bindkey -r '^g'          # remove default Ctrl+G
+  bindkey '\ec' _navi_widget  # Alt+c → navi cheatsheet
+fi
+
 # Starship prompt (load near end)
 if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
