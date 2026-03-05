@@ -7,7 +7,7 @@ config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
 config.default_cursor_style = "BlinkingBar"
 config.color_scheme = "Tokyo Night"
-config.font = wezterm.font("JetBrains Mono", { weight = "Bold" })
+config.font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Bold" })
 config.font_size = 16.5
 
 -- Override background to darker shade (for tmux dimming effect)

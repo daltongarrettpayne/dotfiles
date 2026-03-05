@@ -4,7 +4,6 @@ $git_branch\
 $git_status\
 $fill\
 $python\
-$lua\
 $nodejs\
 $golang\
 $haskell\
@@ -47,14 +46,13 @@ symbol = ' '
 
 [python]
 style = 'teal'
-symbol = ' '
+symbol = '󰌠 '
 format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
 pyenv_version_name = true
 pyenv_prefix = ''
 
 [lua]
-format = '[$symbol($version )]($style)'
-symbol = ' '
+disabled = true
 
 [nodejs]
 style = 'blue'
