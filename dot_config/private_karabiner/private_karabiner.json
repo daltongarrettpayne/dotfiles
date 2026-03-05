@@ -1,0 +1,54 @@
+{
+  "profiles": [
+    {
+      "complex_modifications": {
+        "rules": [
+          {
+            "description": "Built-in keyboard: Cmd→Opt, Opt→Ctrl, Ctrl→Cmd",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "left_command", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "left_option" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              },
+              {
+                "type": "basic",
+                "from": { "key_code": "right_command", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "right_option" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              },
+              {
+                "type": "basic",
+                "from": { "key_code": "left_option", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "left_control" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              },
+              {
+                "type": "basic",
+                "from": { "key_code": "right_option", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "right_control" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              },
+              {
+                "type": "basic",
+                "from": { "key_code": "left_control", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "left_command" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              },
+              {
+                "type": "basic",
+                "from": { "key_code": "right_control", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "right_command" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              }
+            ]
+          }
+        ]
+      },
+      "name": "Default profile",
+      "selected": true,
+      "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
+    }
+  ]
+}
