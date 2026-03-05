@@ -43,6 +43,12 @@ require('lazy').setup({
 
   require 'kickstart.plugins.neo-tree',
 
+  require 'custom.plugins.harpoon',
+
+  require 'custom.plugins.vim-be-good',
+
+  require 'custom.plugins.cheatsheet',
+
   require 'custom.plugins.none-ls',
 
   require 'custom.plugins.smart-splits',
