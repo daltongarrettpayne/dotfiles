@@ -53,25 +53,8 @@ vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, { desc = '[G]oto [I]mpleme
 vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, { desc = 'Type [D]efinition' })
 vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = 'Hover Documentation' })
 vim.keymap.set('n', '<leader>sh', vim.lsp.buf.signature_help, { desc = '[S]ignature [H]elp' })
-vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, { desc = '[W]orkspace [A]dd Folder' })
-vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, { desc = '[W]orkspace [R]emove Folder' })
-vim.keymap.set('n', '<leader>wl', function()
-  print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-end, { desc = '[W]orkspace [L]ist Folders' })
-
 -- Horizontal split with <leader>-
 vim.keymap.set('n', '<leader>-', ':split<CR>', { silent = true, desc = 'Horizontal split' })
 
 -- Vertical split with <leader>|
 vim.keymap.set('n', '<leader>|', ':vsplit<CR>', { silent = true, desc = 'Vertical split' })
-
--- Reload config with <leader>rc
-vim.keymap.set('n', '<leader>rc', function()
-  for name, _ in pairs(package.loaded) do
-    if name:match('^custom') or name:match('^kickstart') then
-      package.loaded[name] = nil
-    end
-  end
-  dofile(vim.env.MYVIMRC)
-  vim.notify('Config reloaded', vim.log.levels.INFO)
-end, { desc = '[R]eload [C]onfig' })

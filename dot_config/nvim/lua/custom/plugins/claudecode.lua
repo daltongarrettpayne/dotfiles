@@ -44,10 +44,10 @@ return {
     }
   },
   keys = {
-    { '<leader>ac', '<cmd>ClaudeCode<cr>', desc = 'Toggle Claude' },
-    { '<leader>af', '<cmd>ClaudeCodeFocus<cr>', desc = 'Focus Claude' },
-    { '<leader>as', '<cmd>ClaudeCodeSend<cr>', mode = 'v', desc = 'Send to Claude' },
-    { '<leader>aa', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept diff' },
-    { '<leader>ad', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Deny diff' },
+    { '<leader>ct', '<cmd>ClaudeCode<cr>', desc = '[C]laude [T]oggle' },
+    { '<leader>cf', '<cmd>ClaudeCodeFocus<cr>', desc = '[C]laude [F]ocus' },
+    { '<leader>cs', '<cmd>ClaudeCodeSend<cr>', mode = 'v', desc = '[C]laude [S]end selection' },
+    { '<leader>cy', '<cmd>ClaudeCodeDiffAccept<cr>', desc = '[C]laude accept (yes)' },
+    { '<leader>cn', '<cmd>ClaudeCodeDiffDeny<cr>', desc = '[C]laude deny (no)' },
   },
 }

@@ -37,43 +37,21 @@ require('lazy').setup({
 
   require 'kickstart.plugins.tokyonight',
 
-  require 'kickstart.plugins.todo-comments',
-
   require 'kickstart.plugins.mini',
 
   require 'kickstart.plugins.treesitter',
 
   require 'kickstart.plugins.neo-tree',
 
-  require 'kickstart.plugins.toggleterm',
-
-  require 'custom.plugins.iron',
-
-  require 'custom.plugins.git-conflict',
-
-  -- require 'custom.plugins.sqlua',
-
   require 'custom.plugins.none-ls',
 
   require 'custom.plugins.smart-splits',
 
-  require 'custom.plugins.nvim-surround',
-
-  require 'custom.plugins.markdown-preview',
-
   require 'custom.plugins.render-markdown',
-
-  -- require 'custom.plugins.obsidian',
 
   require 'custom.plugins.claudecode',
 
-  require 'custom.plugins.dadbod',
-
   require 'custom.plugins.grug-far',
-
-  require 'custom.plugins.undodir-tree',
-
-  require 'custom.plugins.diffview',
 
   require 'custom.plugins.venv-selector',
 
