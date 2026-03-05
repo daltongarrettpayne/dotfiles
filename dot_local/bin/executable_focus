@@ -11,7 +11,7 @@ cmd="$1"
 case "$cmd" in
   start)
     task="$2"
-    duration="${3:-25}"
+    duration="$3"
 
     if [ -z "$task" ]; then
       echo "Usage: focus start \"task name\" [minutes]"
@@ -24,12 +24,17 @@ case "$cmd" in
     fi
 
     start=$(date +%s)
-    end=$((start + duration * 60))
 
-    printf '%s\n%s\n%s\n' "$task" "$start" "$end" > "$SESSION_FILE"
+    if [ -n "$duration" ]; then
+      end=$((start + duration * 60))
+      printf '%s\n%s\n%s\n' "$task" "$start" "$end" > "$SESSION_FILE"
+      echo "Started: $task ($duration min)"
+    else
+      printf '%s\n%s\n' "$task" "$start" > "$SESSION_FILE"
+      echo "Started: $task"
+    fi
 
     sketchybar --set focus drawing=on 2>/dev/null
-    echo "Started: $task ($duration min)"
     ;;
 
   stop)
@@ -68,16 +73,18 @@ case "$cmd" in
     end=$(sed -n '3p' "$SESSION_FILE")
     now=$(date +%s)
     elapsed=$((now - start))
-    remaining=$((end - now))
 
     echo "Task:    $task"
     printf 'Elapsed: %02d:%02d\n' $((elapsed / 60)) $((elapsed % 60))
 
-    if [ "$remaining" -gt 0 ]; then
-      printf 'Left:    %02d:%02d\n' $((remaining / 60)) $((remaining % 60))
-    else
-      overtime=$((-remaining))
-      printf 'OVER:    +%02d:%02d\n' $((overtime / 60)) $((overtime % 60))
+    if [ -n "$end" ]; then
+      remaining=$((end - now))
+      if [ "$remaining" -gt 0 ]; then
+        printf 'Left:    %02d:%02d\n' $((remaining / 60)) $((remaining % 60))
+      else
+        overtime=$((-remaining))
+        printf 'OVER:    +%02d:%02d\n' $((overtime / 60)) $((overtime % 60))
+      fi
     fi
     ;;
 

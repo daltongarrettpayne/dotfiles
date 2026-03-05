@@ -74,7 +74,7 @@ if.app-id = 'com.github.wez.wezterm'
 run = 'move-node-to-workspace 01-dev'
 
 [[on-window-detected]]
-if.app-id = 'com.brave.Browser'
+if.app-id = 'company.thebrowser.Browser'
 run = 'move-node-to-workspace 02-web'
 
 [[on-window-detected]]
