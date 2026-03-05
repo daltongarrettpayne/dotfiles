@@ -4,6 +4,17 @@
       "complex_modifications": {
         "rules": [
           {
+            "description": "Built-in keyboard: Caps Lock→Escape",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "caps_lock", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "escape" }],
+                "conditions": [{ "type": "device_if", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              }
+            ]
+          },
+          {
             "description": "Built-in keyboard: Cmd→Opt, Opt→Ctrl, Ctrl→Cmd",
             "manipulators": [
               {
