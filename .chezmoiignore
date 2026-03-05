@@ -1,2 +1,8 @@
 # lazy.nvim lockfile — auto-updated by neovim, not managed by chezmoi
 dot_config/nvim/lazy-lock.json
+
+# Third-party plugin dirs — installed at runtime, not tracked
+# tpm: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+dot_tmux/plugins/tpm
+# yazi flavor: cd ~/.config/yazi && ya pack -a dangooddd/tokyo-night
+dot_config/yazi/flavors

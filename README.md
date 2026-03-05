@@ -14,6 +14,17 @@ Then install packages:
 brew bundle --file ~/.Brewfile
 ```
 
+Install third-party plugins (not tracked in this repo):
+
+```sh
+# tmux plugin manager
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# then open tmux and press prefix + I to install plugins
+
+# yazi tokyo-night flavor
+cd ~/.config/yazi && ya pack -a dangooddd/tokyo-night
+```
+
 ## What's included
 
 | Config | Tool | Notes |
