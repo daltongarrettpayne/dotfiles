@@ -84,6 +84,7 @@ run = 'move-node-to-workspace 04-comms'
 [[on-window-detected]]
 if.app-id = 'com.apple.mail'
 run = 'move-node-to-workspace 04-comms'
+{{- if eq .machineType "work" }}
 
 [[on-window-detected]]
 if.app-id = 'com.granola.app'
@@ -96,6 +97,7 @@ run = 'move-node-to-workspace 04-comms'
 [[on-window-detected]]
 if.app-id = 'com.cron.electron'
 run = 'move-node-to-workspace 04-comms'
+{{- end }}
 
 [[on-window-detected]]
 if.app-id = 'pl.maketheweb.cleanshotx'

@@ -1,0 +1,39 @@
+[data]
+    machineType = {{ promptString "Machine type (personal/work)" | quote }}
+    theme = {{ promptString "Default theme (tokyo-night/catppuccin-mocha/rose-pine/gruvbox)" "tokyo-night" | quote }}
+
+    [data.themes.tokyo-night]
+        wezterm_colorscheme = "Tokyo Night"
+        nvim_plugin         = "folke/tokyonight.nvim"
+        nvim_colorscheme    = "tokyonight-night"
+        active_bg           = "#1a1b26"
+        active_fg           = "#c0caf5"
+        inactive_bg         = "#0f0f14"
+        inactive_fg         = "#565f89"
+
+    [data.themes.catppuccin-mocha]
+        wezterm_colorscheme = "Catppuccin Mocha"
+        nvim_plugin         = "catppuccin/nvim"
+        nvim_colorscheme    = "catppuccin-mocha"
+        active_bg           = "#1e1e2e"
+        active_fg           = "#cdd6f4"
+        inactive_bg         = "#11111b"
+        inactive_fg         = "#585b70"
+
+    [data.themes.rose-pine]
+        wezterm_colorscheme = "rose-pine"
+        nvim_plugin         = "rose-pine/neovim"
+        nvim_colorscheme    = "rose-pine"
+        active_bg           = "#191724"
+        active_fg           = "#e0def4"
+        inactive_bg         = "#111019"
+        inactive_fg         = "#6e6a86"
+
+    [data.themes.gruvbox]
+        wezterm_colorscheme = "GruvboxDark"
+        nvim_plugin         = "ellisonleao/gruvbox.nvim"
+        nvim_colorscheme    = "gruvbox"
+        active_bg           = "#282828"
+        active_fg           = "#ebdbb2"
+        inactive_bg         = "#1d2021"
+        inactive_fg         = "#928374"
