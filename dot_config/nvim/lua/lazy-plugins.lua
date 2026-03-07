@@ -43,8 +43,6 @@ require('lazy').setup({
 
   require 'kickstart.plugins.neo-tree',
 
-  require 'custom.plugins.alpha',
-
   require 'custom.plugins.harpoon',
 
   require 'custom.plugins.vim-be-good',
