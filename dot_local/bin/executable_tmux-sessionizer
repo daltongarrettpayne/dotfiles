@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# tmux run-shell uses a minimal env; Homebrew binaries aren't in PATH by default
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 REPOS="$HOME/Documents/repos"
 TASKS_DIR="$REPOS/collide-tasks"
 
 # ── Active sessions ────────────────────────────────────────────────────────────
 
-mapfile -t ACTIVE < <(tmux list-sessions -F '#{session_name}' 2>/dev/null || true)
+ACTIVE=()
+while IFS= read -r _line; do
+  [[ -n "$_line" ]] && ACTIVE+=("$_line")
+done < <(tmux list-sessions -F '#{session_name}' 2>/dev/null || true)
 
 is_active() {
   local s; for s in "${ACTIVE[@]}"; do [[ "$s" == "$1" ]] && return 0; done; return 1
@@ -14,23 +20,30 @@ is_active() {
 
 # ── Entry formatting ───────────────────────────────────────────────────────────
 #
-# Tab-delimited: TYPE \t DISPLAY \t SESSION_NAME \t DIR
-#   TYPE: H (header, non-actionable) | E (selectable entry)
-#
-# fzf is given --with-nth=2 so it only sees DISPLAY.
-# After selection we extract SESSION_NAME and DIR from fields 3 and 4.
+# 5 tab-delimited fields:
+#   1: TYPE          — H (header) or E (entry); used by transform binding
+#   2: SEARCH_TEXT   — plain text fzf matches against (no ANSI)
+#   3: DISPLAY       — ANSI-formatted line shown to the user
+#   4: SESSION_NAME  — extracted after selection
+#   5: DIR           — working dir for new sessions (empty = $HOME)
 
-NAME_COL=24  # visual width reserved for the name column
+NAME_COL=22  # visual width for the name column in the display field
 
 header() {
-  printf 'H\t\033[2m  ── %s\033[0m\t\t\n' "$1"
+  local label="$1"
+  printf 'H\t%s\t\033[2m  ── %s\033[0m\t\t\n' "$label" "$label"
 }
 
 entry() {
   local label="$1" session="$2" dir="${3:-}"
-  local status=""
-  is_active "$session" && status=$'\033[32m[active]\033[0m'
-  printf 'E\t  %-*s%s\t%s\t%s\n' "$NAME_COL" "$label" "$status" "$session" "$dir"
+  local status="" display_status=""
+  if is_active "$session"; then
+    display_status=$'\033[32m[active]\033[0m'
+    status="[active]"
+  fi
+  local display
+  display=$(printf '  %-*s%s' "$NAME_COL" "$label" "$display_status")
+  printf 'E\t%s %s\t%s\t%s\t%s\n' "$label" "$status" "$display" "$session" "$dir"
 }
 
 # ── All known names (used to detect orphan "Other" sessions) ──────────────────
@@ -44,6 +57,9 @@ if [[ -d "$TASKS_DIR" ]]; then
 fi
 
 # ── Build the full entry list ──────────────────────────────────────────────────
+#
+# Order is always: Meta → Projects → Other.
+# --no-sort in fzf preserves this order after filtering.
 
 generate() {
   header "Meta"
@@ -95,31 +111,36 @@ hl:#7aa2f7,hl+:#7aa2f7,prompt:#7aa2f7,pointer:#9ece6a,\
 info:#565f89,border:#27283d,gutter:#1a1b26,header:#565f89,\
 marker:#9ece6a"
 
+# Field layout: TYPE(1) \t SEARCH_TEXT(2) \t DISPLAY(3) \t SESSION(4) \t DIR(5)
+#   --with-nth=3   → show only the DISPLAY field
+#   --nth=2        → fuzzy-match only the SEARCH_TEXT field (no ANSI, clean)
+#   transform      → noop when enter is pressed on a header (type=H)
+#   alt-f          → close the picker (same key that opened it)
+
 selected=$(
   generate | fzf \
     --ansi \
     --no-sort \
     --delimiter=$'\t' \
-    --with-nth=2 \
+    --with-nth=3 \
     --nth=2 \
-    --prompt='  session › ' \
-    --pointer='▶ ' \
+    --prompt='  session > ' \
+    --pointer='> ' \
     --no-info \
     --no-scrollbar \
     --border=none \
     --color="$FZF_COLORS" \
     --bind='ctrl-n:down,ctrl-p:up' \
+    --bind='alt-f:abort' \
+    --bind=$'enter:transform:[[ {1} == H ]] && echo noop || echo accept' \
 ) || exit 0
 
 [[ -z "$selected" ]] && exit 0
 
 # ── Selection handling ─────────────────────────────────────────────────────────
 
-row_type=$(printf '%s' "$selected" | cut -f1)
-[[ "$row_type" == "H" ]] && exit 0
-
-session=$(printf '%s' "$selected" | cut -f3 | tr . _)
-dir=$(printf '%s' "$selected" | cut -f4)
+session=$(printf '%s' "$selected" | cut -f4 | tr . _)
+dir=$(printf '%s' "$selected" | cut -f5)
 start_dir="${dir:-$HOME}"
 
 if ! tmux has-session -t "=$session" 2>/dev/null; then
