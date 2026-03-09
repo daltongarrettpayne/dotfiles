@@ -36,8 +36,11 @@ bind - split-window -v -c "#{pane_current_path}"
 # Detect if current pane is running nvim
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf)(diff)?$'"
 
-bind -n M-[ copy-mode                                                          # Alt+[ for copy mode
+bind -n M-[ if-shell "$is_vim" 'send-keys M-[' 'copy-mode'                    # Alt+[ → nvim normal mode inside nvim, copy-mode elsewhere
 bind -n M-g popup -d '#{pane_current_path}' -w 90% -h 90% -s 'fg=#c0caf5,bg=#1a1b26' -E lazygit    # Alt+g for lazygit popup
+bind -n M-t if-shell -F '#{==:#{session_name},scratch}' \
+  'detach-client' \
+  'popup -d "#{pane_current_path}" -w 80% -h 80% -s "fg=#c0caf5,bg=#1a1b26" -E "tmux new-session -A -s scratch"'  # Alt+t toggle floating terminal
 bind -n M-s choose-tree -Zs                                              # Alt+s for session list
 bind -n M-N command-prompt -p "New session name:" "new-session -s '%%'" # Alt+Shift+N to create session
 bind -n M-X confirm-before -p "Kill session #S? (y/n)" kill-session     # Alt+Shift+x to kill session
