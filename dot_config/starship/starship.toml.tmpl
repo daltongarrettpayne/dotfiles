@@ -3,16 +3,7 @@ $directory\
 $git_branch\
 $git_status\
 $fill\
-$python\
-$nodejs\
-$golang\
-$haskell\
-$rust\
-$ruby\
-$aws\
-$docker_context\
 $jobs\
-$cmd_duration\
 $line_break\
 $character"""
 
@@ -37,9 +28,21 @@ style = 'fg:green'
 symbol = ' '
 format = '[on](white) [$symbol$branch ]($style)'
 
-# [git_status]
-# style = 'fg:red'
-# format = '([$all_status$ahead_behind]($style) )'
+[git_status]
+style = 'fg:red'
+format = '([$all_status$ahead_behind]($style) )'
+conflicted = '󰽜'
+ahead = '󰜷'
+behind = '󰜮'
+diverged = '󰹺'
+up_to_date = '󰄬'
+untracked = '󰋗'
+stashed = '󰆓'
+modified = '󰏫'
+staged = '󰐖'
+renamed = '󰑕'
+deleted = '󰗨'
+typechanged = '󱀷'
 
 [fill]
 symbol = ' '
