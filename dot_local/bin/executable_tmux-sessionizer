@@ -41,6 +41,10 @@ gap() {
 
 entry() {
   local label="$1" session="$2" dir="${3:-}"
+  # Truncate display label so [active] never runs off the right edge
+  if (( ${#label} > NAME_COL )); then
+    label="${label:0:$((NAME_COL - 1))}…"
+  fi
   local status="" display_status=""
   if is_active "$session"; then
     display_status=$'\033[32m[active]\033[0m'
@@ -92,7 +96,7 @@ generate() {
   if (( ${#_others[@]} > 0 )); then
     gap
     header "Other"
-    for _s in "${_others[@]}"; do entry "$_s" "$_s"; done
+    for _s in "${_others[@]}"; do entry "$(basename "$_s")" "$_s"; done
   fi
 }
 
@@ -103,7 +107,7 @@ if [[ "${1:-}" != "--select" ]]; then
   height=$(( count + 5 ))  # popup border (×2) + fzf prompt + marker line + padding
   tmux display-popup \
     -E \
-    -w 36% -h "$height" \
+    -w 42 -h "$height" \
     -b rounded \
     -S 'fg=#27283d' \
     "~/.local/bin/tmux-sessionizer --select"
