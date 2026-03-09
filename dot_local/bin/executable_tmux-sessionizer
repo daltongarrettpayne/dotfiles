@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPOS="$HOME/Documents/repos"
+TASKS_DIR="$REPOS/collide-tasks"
+
+# ── Active sessions ────────────────────────────────────────────────────────────
+
+mapfile -t ACTIVE < <(tmux list-sessions -F '#{session_name}' 2>/dev/null || true)
+
+is_active() {
+  local s; for s in "${ACTIVE[@]}"; do [[ "$s" == "$1" ]] && return 0; done; return 1
+}
+
+# ── Entry formatting ───────────────────────────────────────────────────────────
+#
+# Tab-delimited: TYPE \t DISPLAY \t SESSION_NAME \t DIR
+#   TYPE: H (header, non-actionable) | E (selectable entry)
+#
+# fzf is given --with-nth=2 so it only sees DISPLAY.
+# After selection we extract SESSION_NAME and DIR from fields 3 and 4.
+
+NAME_COL=24  # visual width reserved for the name column
+
+header() {
+  printf 'H\t\033[2m  ── %s\033[0m\t\t\n' "$1"
+}
+
+entry() {
+  local label="$1" session="$2" dir="${3:-}"
+  local status=""
+  is_active "$session" && status=$'\033[32m[active]\033[0m'
+  printf 'E\t  %-*s%s\t%s\t%s\n' "$NAME_COL" "$label" "$status" "$session" "$dir"
+}
+
+# ── All known names (used to detect orphan "Other" sessions) ──────────────────
+
+KNOWN=("system" "scratch")
+[[ -d "$REPOS/collide-core" ]] && KNOWN+=("collide-core")
+if [[ -d "$TASKS_DIR" ]]; then
+  for _d in "$TASKS_DIR"/*/; do
+    [[ -d "$_d" ]] && KNOWN+=("$(basename "${_d%/}")")
+  done
+fi
+
+# ── Build the full entry list ──────────────────────────────────────────────────
+
+generate() {
+  header "Meta"
+  entry "system"  "system"
+  entry "scratch" "scratch"
+
+  header "Projects"
+  [[ -d "$REPOS/collide-core" ]] && entry "collide-core" "collide-core" "$REPOS/collide-core"
+  if [[ -d "$TASKS_DIR" ]]; then
+    for _d in "$TASKS_DIR"/*/; do
+      [[ -d "$_d" ]] || continue
+      local _n; _n="$(basename "${_d%/}")"
+      entry "$_n" "$_n" "${_d%/}"
+    done
+  fi
+
+  # Active sessions not in any known group
+  local _others=()
+  for _s in "${ACTIVE[@]}"; do
+    local _found=false
+    for _k in "${KNOWN[@]}"; do [[ "$_s" == "$_k" ]] && _found=true && break; done
+    $_found || _others+=("$_s")
+  done
+  if (( ${#_others[@]} > 0 )); then
+    header "Other"
+    for _s in "${_others[@]}"; do entry "$_s" "$_s"; done
+  fi
+}
+
+# ── Phase 1: outside popup — calculate height, open popup ─────────────────────
+
+if [[ "${1:-}" != "--select" ]]; then
+  count=$(generate | wc -l)
+  height=$(( count + 5 ))  # popup border (×2) + fzf prompt + marker line + padding
+  tmux display-popup \
+    -E \
+    -w 36% -h "$height" \
+    -b rounded \
+    -S 'fg=#27283d' \
+    "~/.local/bin/tmux-sessionizer --select"
+  exit 0
+fi
+
+# ── Phase 2: inside popup — run fzf ───────────────────────────────────────────
+
+# Tokyo Night palette, matched to the tmux theme in tmux.conf
+FZF_COLORS="bg:#1a1b26,bg+:#1f2335,fg:#c0caf5,fg+:#c0caf5,\
+hl:#7aa2f7,hl+:#7aa2f7,prompt:#7aa2f7,pointer:#9ece6a,\
+info:#565f89,border:#27283d,gutter:#1a1b26,header:#565f89,\
+marker:#9ece6a"
+
+selected=$(
+  generate | fzf \
+    --ansi \
+    --no-sort \
+    --delimiter=$'\t' \
+    --with-nth=2 \
+    --nth=2 \
+    --prompt='  session › ' \
+    --pointer='▶ ' \
+    --no-info \
+    --no-scrollbar \
+    --border=none \
+    --color="$FZF_COLORS" \
+    --bind='ctrl-n:down,ctrl-p:up' \
+) || exit 0
+
+[[ -z "$selected" ]] && exit 0
+
+# ── Selection handling ─────────────────────────────────────────────────────────
+
+row_type=$(printf '%s' "$selected" | cut -f1)
+[[ "$row_type" == "H" ]] && exit 0
+
+session=$(printf '%s' "$selected" | cut -f3 | tr . _)
+dir=$(printf '%s' "$selected" | cut -f4)
+start_dir="${dir:-$HOME}"
+
+if ! tmux has-session -t "=$session" 2>/dev/null; then
+  tmux new-session -ds "$session" -c "$start_dir"
+fi
+
+tmux switch-client -t "=$session"
