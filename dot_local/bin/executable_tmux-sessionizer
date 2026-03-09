@@ -34,6 +34,11 @@ header() {
   printf 'H\t%s\t\033[2m  ── %s\033[0m\t\t\n' "$label" "$label"
 }
 
+# Blank separator line between groups (non-selectable, zero height in fzf)
+gap() {
+  printf 'H\t\t\t\t\n'
+}
+
 entry() {
   local label="$1" session="$2" dir="${3:-}"
   local status="" display_status=""
@@ -66,6 +71,7 @@ generate() {
   entry "system"  "system"
   entry "scratch" "scratch"
 
+  gap
   header "Projects"
   [[ -d "$REPOS/collide-core" ]] && entry "collide-core" "collide-core" "$REPOS/collide-core"
   if [[ -d "$TASKS_DIR" ]]; then
@@ -84,6 +90,7 @@ generate() {
     $_found || _others+=("$_s")
   done
   if (( ${#_others[@]} > 0 )); then
+    gap
     header "Other"
     for _s in "${_others[@]}"; do entry "$_s" "$_s"; done
   fi
@@ -123,7 +130,7 @@ selected=$(
     --no-sort \
     --delimiter=$'\t' \
     --with-nth=3 \
-    --nth=2 \
+    --layout=reverse \
     --prompt='  session > ' \
     --pointer='> ' \
     --no-info \
