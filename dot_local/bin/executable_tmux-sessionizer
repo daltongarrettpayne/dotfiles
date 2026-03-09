@@ -27,11 +27,21 @@ is_active() {
 #   4: SESSION_NAME  — extracted after selection
 #   5: DIR           — working dir for new sessions (empty = $HOME)
 
-NAME_COL=22  # visual width for the name column in the display field
+NAME_COL=22      # max label width before truncation
+CONTENT_WIDTH=36  # total usable line width (popup 42 - border 2 - pointer+gutter 4)
+NAME_FIELD=$(( CONTENT_WIDTH - 2 - 8 ))  # 26: pads name so [active] is right-flush
 
 header() {
   local label="$1"
-  printf 'H\t%s\t\033[2m  ── %s\033[0m\t\t\n' "$label" "$label"
+  # 36 total width, minus 2 indent, minus 2 spaces around label = 32 for dashes
+  local avail=$(( 32 - ${#label} ))
+  (( avail < 0 )) && avail=0
+  local left=$(( avail / 2 ))
+  local right=$(( avail - left ))
+  local ldashes rdashes
+  printf -v ldashes '%.0s─' $(seq 1 "$left")
+  printf -v rdashes '%.0s─' $(seq 1 "$right")
+  printf 'H\t%s\t\033[2m  %s %s %s\033[0m\t\t\n' "$label" "$ldashes" "$label" "$rdashes"
 }
 
 # Blank separator line between groups (non-selectable, zero height in fzf)
@@ -51,7 +61,7 @@ entry() {
     status="[active]"
   fi
   local display
-  display=$(printf '  %-*s%s' "$NAME_COL" "$label" "$display_status")
+  display=$(printf '  %-*s%s' "$NAME_FIELD" "$label" "$display_status")
   printf 'E\t%s %s\t%s\t%s\t%s\n' "$label" "$status" "$display" "$session" "$dir"
 }
 
@@ -108,8 +118,7 @@ if [[ "${1:-}" != "--select" ]]; then
   tmux display-popup \
     -E \
     -w 42 -h "$height" \
-    -b rounded \
-    -S 'fg=#27283d' \
+    -b rounded -S 'fg=#565f89' -s 'bg=#0f0f14' \
     "~/.local/bin/tmux-sessionizer --select"
   exit 0
 fi
@@ -135,8 +144,8 @@ selected=$(
     --delimiter=$'\t' \
     --with-nth=3 \
     --layout=reverse \
-    --prompt='  session > ' \
-    --pointer='> ' \
+    --prompt='   session > ' \
+    --pointer='' \
     --no-info \
     --no-scrollbar \
     --border=none \
