@@ -23,7 +23,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); remaining=$(echo \"$input\" | jq -r '.context_window.remaining_percentage // empty'); branch=$(cd \"$dir\" 2>/dev/null && git -c core.fileMode=false -c advice.detachedHead=false symbolic-ref --short HEAD 2>/dev/null || git -c core.fileMode=false -c advice.detachedHead=false rev-parse --short HEAD 2>/dev/null); printf '%s' \"$(basename \"$dir\")\"; [ -n \"$branch\" ] && printf ' (%s)' \"$branch\"; printf ' | %s' \"$model\"; [ -n \"$remaining\" ] && printf ' | Context: %.0f%%' \"$remaining\""
+    "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {
     "gilfoyle@collide-marketplace": true,
