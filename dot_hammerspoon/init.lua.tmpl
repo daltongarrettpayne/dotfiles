@@ -6,7 +6,10 @@
 --   shift+1/2/3    move focused window to workspace instantly
 --
 -- TAP F17, then key sequence:
+--   ?              cheat sheet (q to dismiss)
 --   o              workspace back-and-forth
+--   b              Arc
+--   m              TIDAL
 --   1/2/3          switch workspace
 --   shift+1/2/3    move focused window to workspace
 --   c → s          Slack
@@ -15,9 +18,15 @@
 --   c → n          Notion
 --   c → g          Granola  (work only)
 --   d → t          WezTerm
---   d → b          Arc (browser)
+--   d → p          Postico 2
 --   s → f          Finder
 --   s → s          System Settings
+--   s → v          OpenVPN Connect
+--   w → f          fullscreen toggle
+--   w → m          minimize window
+--   r → h          reload Hammerspoon
+--   r → s          reload Sketchybar
+--   r → a          reload Aerospace config
 --
 --   Shift on any category action pulls the app into the current workspace:
 --   c → shift+s    pull Slack into current workspace
@@ -37,6 +46,7 @@ local MODIFIER_CODES = {
 -- ── App definitions ───────────────────────────────────────────────────────────
 -- name  → used by launchOrFocus (go-to)
 -- id    → used by pullApp (move window to current workspace)
+-- cmd   → used for direct commands (no app launch)
 
 local apps = {
   c = {
@@ -52,11 +62,24 @@ local apps = {
   },
   d = {
     t = { name = "WezTerm",         id = "com.github.wez.wezterm" },
-    b = { name = "Arc",             id = "company.thebrowser.Browser" },
+    p = { name = "Postico 2",       id = "at.eggerapps.Postico" },
   },
   s = {
     f = { name = "Finder",          id = "com.apple.finder" },
     s = { name = "System Settings", id = "com.apple.systempreferences" },
+    v = { name = "OpenVPN Connect", id = "org.openvpn.client.app" },
+  },
+  w = {
+    f = { cmd = function() hs.execute(AEROSPACE .. " fullscreen") end },
+    m = { cmd = function()
+      local win = hs.window.focusedWindow()
+      if win then win:minimize() end
+    end },
+  },
+  r = {
+    h = { cmd = function() hs.alert.show("Hammerspoon reloaded", 0.5); hs.timer.doAfter(0.5, hs.reload) end },
+    s = { cmd = function() hs.execute("sketchybar --reload"); hs.alert.show("Sketchybar reloaded", 0.5) end },
+    a = { cmd = function() hs.execute(AEROSPACE .. " reload-config"); hs.alert.show("Aerospace reloaded", 0.5) end },
   },
 }
 
@@ -76,12 +99,29 @@ local function pullApp(bundleId)
   end
 end
 
+-- ── Window focus tracking (for back-and-forth) ───────────────────────────────
+
+local prevWindow = nil
+local currWindow = nil
+
+local winFilter = hs.window.filter.new(nil, "prevWindowTracker")
+winFilter:subscribe(hs.window.filter.windowFocused, function(win)
+  if win ~= currWindow then
+    prevWindow = currWindow
+    currWindow = win
+  end
+end)
+
 -- ── Workspace actions (shared between held and tap modes) ─────────────────────
 
+local function switchWorkspace(name)
+  hs.execute(AEROSPACE .. " workspace " .. name)
+end
+
 local wsSwitch = {
-  ["1"] = function() hs.execute(AEROSPACE .. " workspace 01-dev") end,
-  ["2"] = function() hs.execute(AEROSPACE .. " workspace 02-bench") end,
-  ["3"] = function() hs.execute(AEROSPACE .. " workspace 03-hold") end,
+  ["1"] = function() switchWorkspace("01-dev") end,
+  ["2"] = function() switchWorkspace("02-bench") end,
+  ["3"] = function() switchWorkspace("03-hold") end,
 }
 
 local wsMove = {
@@ -89,6 +129,120 @@ local wsMove = {
   ["2"] = function() hs.execute(AEROSPACE .. " move-node-to-workspace 02-bench --focus-follows-window") end,
   ["3"] = function() hs.execute(AEROSPACE .. " move-node-to-workspace 03-hold --focus-follows-window") end,
 }
+
+-- ── Cheat sheet ───────────────────────────────────────────────────────────────
+
+local cheatView    = nil
+local cheatWatcher = nil
+
+local function hideCheatsheet()
+  if cheatWatcher then cheatWatcher:stop(); cheatWatcher = nil end
+  if cheatView    then cheatView:delete();  cheatView    = nil end
+end
+
+local function showCheatsheet()
+  if cheatView then hideCheatsheet(); return end
+
+  local sf    = hs.screen.mainScreen():frame()
+  local w, h  = 660, 530
+  cheatView   = hs.webview.new({
+    x = sf.x + (sf.w - w) / 2,
+    y = sf.y + (sf.h - h) / 2,
+    w = w, h = h,
+  })
+  cheatView:windowStyle({ "titled", "closable", "nonactivating" })
+  cheatView:level(hs.canvas.windowLevels.floating)
+  cheatView:html([[<!DOCTYPE html><html><head><style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#1a1b26; color:#c0caf5;
+      font-family:'Menlo','Monaco',monospace; font-size:12.5px;
+      padding:24px 28px; height:100vh; overflow:hidden;
+    }
+    h1 { color:#7aa2f7; font-size:14px; text-align:center; margin-bottom:18px; letter-spacing:.05em; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:0 36px; }
+    .section { margin-bottom:14px; }
+    .section-title {
+      color:#7dcfff; font-size:10.5px; text-transform:uppercase;
+      letter-spacing:.12em; margin-bottom:5px;
+      border-bottom:1px solid #292e42; padding-bottom:3px;
+    }
+    .row { display:flex; justify-content:space-between; padding:2px 0; }
+    .key { color:#e0af68; }
+    .desc { color:#9aa5ce; }
+    .hint { color:#565f89; font-size:10px; margin-top:2px; }
+    .footer { text-align:center; color:#565f89; font-size:10.5px; margin-top:16px; }
+  </style></head><body>
+    <h1>Leader Key Cheatsheet</h1>
+    <div class="grid">
+      <div>
+        <div class="section">
+          <div class="section-title">Hold F17</div>
+          <div class="row"><span class="key">1 / 2 / 3</span><span class="desc">switch workspace</span></div>
+          <div class="row"><span class="key">⇧1 / ⇧2 / ⇧3</span><span class="desc">move window to workspace</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Tap F17 — direct</div>
+          <div class="row"><span class="key">o</span><span class="desc">back-and-forth</span></div>
+          <div class="row"><span class="key">b</span><span class="desc">Arc</span></div>
+          <div class="row"><span class="key">m</span><span class="desc">TIDAL</span></div>
+          <div class="row"><span class="key">1 / 2 / 3</span><span class="desc">switch workspace</span></div>
+          <div class="row"><span class="key">⇧1 / ⇧2 / ⇧3</span><span class="desc">move window</span></div>
+          <div class="row"><span class="key">?</span><span class="desc">this cheatsheet</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">c — comms</div>
+          <div class="row"><span class="key">c → s</span><span class="desc">Slack</span></div>
+          <div class="row"><span class="key">c → m</span><span class="desc">Mail</span></div>
+          <div class="row"><span class="key">c → c</span><span class="desc">Calendar</span></div>
+          <div class="row"><span class="key">c → n</span><span class="desc">Notion</span></div>
+{{- if eq .machineType "work" }}
+          <div class="row"><span class="key">c → g</span><span class="desc">Granola</span></div>
+{{- end }}
+        </div>
+      </div>
+      <div>
+        <div class="section">
+          <div class="section-title">d — dev</div>
+          <div class="row"><span class="key">d → t</span><span class="desc">WezTerm</span></div>
+          <div class="row"><span class="key">d → p</span><span class="desc">Postico 2</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">s — system</div>
+          <div class="row"><span class="key">s → f</span><span class="desc">Finder</span></div>
+          <div class="row"><span class="key">s → s</span><span class="desc">System Settings</span></div>
+          <div class="row"><span class="key">s → v</span><span class="desc">OpenVPN Connect</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">w — window</div>
+          <div class="row"><span class="key">w → f</span><span class="desc">fullscreen toggle</span></div>
+          <div class="row"><span class="key">w → m</span><span class="desc">minimize</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">r — reload</div>
+          <div class="row"><span class="key">r → h</span><span class="desc">Hammerspoon</span></div>
+          <div class="row"><span class="key">r → s</span><span class="desc">Sketchybar</span></div>
+          <div class="row"><span class="key">r → a</span><span class="desc">Aerospace config</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">⇧ + app key = pull here</div>
+          <div class="row hint">e.g. c → ⇧s pulls Slack into current workspace</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">press q to dismiss</div>
+  </body></html>]])
+  cheatView:show()
+
+  cheatWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(e)
+    if hs.keycodes.map[e:getKeyCode()] == "q" then
+      hideCheatsheet()
+      return true
+    end
+    return false
+  end)
+  cheatWatcher:start()
+end
 
 -- ── Held mode ─────────────────────────────────────────────────────────────────
 -- Active while F17 is physically held. 1/2/3 switch workspaces immediately.
@@ -134,10 +288,12 @@ local function startTimeout()
 end
 
 local direct = {
-  o     = function() hs.execute(AEROSPACE .. " workspace --back-and-forth") end,
+  o     = function() if prevWindow and prevWindow:isValid() then prevWindow:focus() end end,
   ["1"] = wsSwitch["1"],
   ["2"] = wsSwitch["2"],
   ["3"] = wsSwitch["3"],
+  b     = function() hs.application.launchOrFocus("Arc") end,
+  m     = function() hs.application.launchOrFocus("TIDAL") end,
 }
 
 keyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
@@ -153,12 +309,22 @@ keyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event
   if state.category then
     local cat = apps[state.category]
     if cat and char and cat[char] then
-      if shift then
-        pullApp(cat[char].id)
+      local entry = cat[char]
+      if entry.cmd then
+        entry.cmd()
+      elseif shift then
+        pullApp(entry.id)
       else
-        hs.application.launchOrFocus(cat[char].name)
+        hs.application.launchOrFocus(entry.name)
       end
     end
+    reset(false)
+    return true
+  end
+
+  -- ? (shift+/) → cheat sheet
+  if shift and char == "/" then
+    showCheatsheet()
     reset(false)
     return true
   end
