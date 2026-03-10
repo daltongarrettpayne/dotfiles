@@ -99,19 +99,6 @@ local function pullApp(bundleId)
   end
 end
 
--- ── Window focus tracking (for back-and-forth) ───────────────────────────────
-
-local prevWindow = nil
-local currWindow = nil
-
-local winFilter = hs.window.filter.new(nil, "prevWindowTracker")
-winFilter:subscribe(hs.window.filter.windowFocused, function(win)
-  if win ~= currWindow then
-    prevWindow = currWindow
-    currWindow = win
-  end
-end)
-
 -- ── Workspace actions (shared between held and tap modes) ─────────────────────
 
 local function switchWorkspace(name)
@@ -288,7 +275,7 @@ local function startTimeout()
 end
 
 local direct = {
-  o     = function() if prevWindow and prevWindow:isValid() then prevWindow:focus() end end,
+
   ["1"] = wsSwitch["1"],
   ["2"] = wsSwitch["2"],
   ["3"] = wsSwitch["3"],
