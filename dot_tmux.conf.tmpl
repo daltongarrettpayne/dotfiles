@@ -1,5 +1,6 @@
 # Sessionizer: fzf over projects + static sessions (Alt+f)
 bind -n M-f run-shell "~/.local/bin/tmux-sessionizer"
+bind -n M-o switch-client -l                                            # Alt+o → last session (back)
 
 # Essential performance and usability settings
 set -g escape-time 0          # No delay after ESC (crucial for vim)

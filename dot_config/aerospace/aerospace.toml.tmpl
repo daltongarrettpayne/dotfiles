@@ -31,24 +31,14 @@ alt-shift-k = 'move up'
 alt-shift-l = 'move right'
 
 alt-backslash = 'fullscreen'
-alt-f = 'layout floating tiling'
+# alt-f = 'layout floating tiling'  # disabled: used by tmux sessionizer
 
 alt-shift-left = 'join-with left'
 alt-shift-down = 'join-with down'
 alt-shift-up = 'join-with up'
 alt-shift-right = 'join-with right'
 
-# Workspaces
-alt-1 = 'workspace 01-dev'
-alt-2 = 'workspace 02-web'
-alt-3 = 'workspace 03-float'
-alt-4 = 'workspace 04-comms'
-
-# Move window to workspace
-alt-shift-1 = 'move-node-to-workspace 01-dev --focus-follows-window'
-alt-shift-2 = 'move-node-to-workspace 02-web --focus-follows-window'
-alt-shift-3 = 'move-node-to-workspace 03-float --focus-follows-window'
-alt-shift-4 = 'move-node-to-workspace 04-comms --focus-follows-window'
+# Workspace navigation and window moves handled by Hammerspoon leader
 
 # alt-tab = 'workspace-back-and-forth'
 # alt-slash = 'layout tiles horizontal vertical'
@@ -74,45 +64,16 @@ if.app-id = 'com.github.wez.wezterm'
 run = 'move-node-to-workspace 01-dev'
 
 [[on-window-detected]]
-if.app-id = 'company.thebrowser.Browser'
-run = 'move-node-to-workspace 02-web'
-
-[[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-run = 'move-node-to-workspace 04-comms'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.mail'
-run = 'move-node-to-workspace 04-comms'
-{{- if eq .machineType "work" }}
-
-[[on-window-detected]]
-if.app-id = 'com.granola.app'
-run = 'move-node-to-workspace 04-comms'
-
-[[on-window-detected]]
-if.app-id = 'notion.mail.id'
-run = 'move-node-to-workspace 04-comms'
-
-[[on-window-detected]]
-if.app-id = 'com.cron.electron'
-run = 'move-node-to-workspace 04-comms'
-{{- end }}
-
-[[on-window-detected]]
 if.app-id = 'pl.maketheweb.cleanshotx'
 run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.ScreenContinuity'
-run = ['layout floating', 'move-node-to-workspace 03-float']
+run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
-run = ['layout floating', 'move-node-to-workspace 03-float']
+run = 'layout floating'
 
 [[on-window-detected]]
-run = ['move-node-to-workspace 03-float']
-
-
-
+run = ['move-node-to-workspace 03-hold', 'layout accordion']

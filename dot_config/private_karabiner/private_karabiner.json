@@ -15,6 +15,17 @@
             ]
           },
           {
+            "description": "External keyboard: Right Command → F17 (Hammerspoon leader)",
+            "manipulators": [
+              {
+                "type": "basic",
+                "from": { "key_code": "right_command", "modifiers": { "optional": ["any"] } },
+                "to": [{ "key_code": "f17" }],
+                "conditions": [{ "type": "device_unless", "identifiers": [{ "is_built_in_keyboard": true }] }]
+              }
+            ]
+          },
+          {
             "description": "Built-in keyboard: Cmd→Opt, Opt→Ctrl, Ctrl→Cmd",
             "manipulators": [
               {

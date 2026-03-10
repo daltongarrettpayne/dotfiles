@@ -1,0 +1,206 @@
+-- Leader key navigation system
+-- Right Command (remapped to F17 via Karabiner-Elements) activates leader mode.
+--
+-- HOLD F17 + key  (while key is held down):
+--   1/2/3          switch workspace instantly
+--   shift+1/2/3    move focused window to workspace instantly
+--
+-- TAP F17, then key sequence:
+--   o              workspace back-and-forth
+--   1/2/3          switch workspace
+--   shift+1/2/3    move focused window to workspace
+--   c → s          Slack
+--   c → m          Mail
+--   c → c          Calendar
+--   c → n          Notion
+--   c → g          Granola  (work only)
+--   d → t          WezTerm
+--   d → b          Arc (browser)
+--   s → f          Finder
+--   s → s          System Settings
+--
+--   Shift on any category action pulls the app into the current workspace:
+--   c → shift+s    pull Slack into current workspace
+
+local AEROSPACE = "/opt/homebrew/bin/aerospace"
+local TIMEOUT   = 2.0
+
+-- Modifier keycodes — keypresses to silently ignore in sequential leader mode
+local MODIFIER_CODES = {
+  [54]=true, [55]=true,  -- left/right cmd
+  [56]=true, [60]=true,  -- left/right shift
+  [58]=true, [61]=true,  -- left/right opt
+  [59]=true, [62]=true,  -- left/right ctrl
+  [63]=true,             -- fn
+}
+
+-- ── App definitions ───────────────────────────────────────────────────────────
+-- name  → used by launchOrFocus (go-to)
+-- id    → used by pullApp (move window to current workspace)
+
+local apps = {
+  c = {
+    s = { name = "Slack",           id = "com.tinyspeck.slackmacgap" },
+    m = { name = "Mail",            id = "com.apple.mail" },
+{{- if eq .machineType "work" }}
+    c = { name = "Notion Calendar", id = "com.cron.electron" },
+    n = { name = "Notion",          id = "notion.mail.id" },
+    g = { name = "Granola",         id = "com.granola.app" },
+{{- else }}
+    c = { name = "Calendar",        id = "com.apple.iCal" },
+{{- end }}
+  },
+  d = {
+    t = { name = "WezTerm",         id = "com.github.wez.wezterm" },
+    b = { name = "Arc",             id = "company.thebrowser.Browser" },
+  },
+  s = {
+    f = { name = "Finder",          id = "com.apple.finder" },
+    s = { name = "System Settings", id = "com.apple.systempreferences" },
+  },
+}
+
+-- ── Pull: move an app's window into the current workspace ─────────────────────
+
+local function pullApp(bundleId)
+  local focused = hs.execute(AEROSPACE .. " list-workspaces --focused"):gsub("%s+", "")
+  local output  = hs.execute(AEROSPACE .. " list-windows --all --format '%{window-id}|%{app-bundle-id}'")
+  for line in output:gmatch("[^\n]+") do
+    local winId, appId = line:match("^(.+)|(.+)$")
+    if winId and appId then
+      if appId:gsub("%s+", "") == bundleId then
+        hs.execute(AEROSPACE .. " move-node-to-workspace --window-id " .. winId:gsub("%s+", "") .. " " .. focused)
+        return
+      end
+    end
+  end
+end
+
+-- ── Workspace actions (shared between held and tap modes) ─────────────────────
+
+local wsSwitch = {
+  ["1"] = function() hs.execute(AEROSPACE .. " workspace 01-dev") end,
+  ["2"] = function() hs.execute(AEROSPACE .. " workspace 02-bench") end,
+  ["3"] = function() hs.execute(AEROSPACE .. " workspace 03-hold") end,
+}
+
+local wsMove = {
+  ["1"] = function() hs.execute(AEROSPACE .. " move-node-to-workspace 01-dev --focus-follows-window") end,
+  ["2"] = function() hs.execute(AEROSPACE .. " move-node-to-workspace 02-bench --focus-follows-window") end,
+  ["3"] = function() hs.execute(AEROSPACE .. " move-node-to-workspace 03-hold --focus-follows-window") end,
+}
+
+-- ── Held mode ─────────────────────────────────────────────────────────────────
+-- Active while F17 is physically held. 1/2/3 switch workspaces immediately.
+
+local heldActionTaken = false
+local heldWatcher
+
+heldWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+  local char  = hs.keycodes.map[event:getKeyCode()]
+  local shift = event:getFlags().shift
+
+  if char and shift and wsMove[char] then
+    wsMove[char]()
+    heldActionTaken = true
+    return true
+  end
+
+  if char and wsSwitch[char] then
+    wsSwitch[char]()
+    heldActionTaken = true
+    return true
+  end
+
+  return false  -- pass everything else through
+end)
+
+-- ── Sequential leader mode (tap path) ────────────────────────────────────────
+
+local state = { active = false, category = nil, timer = nil }
+local keyWatcher
+
+local function reset(sendEscape)
+  state.active   = false
+  state.category = nil
+  if state.timer then state.timer:stop(); state.timer = nil end
+  if keyWatcher  then keyWatcher:stop() end
+  if sendEscape  then hs.eventtap.keyStroke({}, "escape") end
+end
+
+local function startTimeout()
+  if state.timer then state.timer:stop() end
+  state.timer = hs.timer.doAfter(TIMEOUT, function() reset(true) end)
+end
+
+local direct = {
+  o     = function() hs.execute(AEROSPACE .. " workspace --back-and-forth") end,
+  ["1"] = wsSwitch["1"],
+  ["2"] = wsSwitch["2"],
+  ["3"] = wsSwitch["3"],
+}
+
+keyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+  local keyCode = event:getKeyCode()
+  local char    = hs.keycodes.map[keyCode]
+  local shift   = event:getFlags().shift
+
+  if MODIFIER_CODES[keyCode] then return true end
+  if keyCode == 53 then reset(false); return true end  -- escape cancels
+
+  startTimeout()
+
+  if state.category then
+    local cat = apps[state.category]
+    if cat and char and cat[char] then
+      if shift then
+        pullApp(cat[char].id)
+      else
+        hs.application.launchOrFocus(cat[char].name)
+      end
+    end
+    reset(false)
+    return true
+  end
+
+  if shift and char and wsMove[char] then
+    wsMove[char]()
+    reset(false)
+    return true
+  end
+
+  if char and direct[char] then
+    direct[char]()
+    reset(false)
+    return true
+  end
+
+  if char and apps[char] then
+    state.category = char
+    return true
+  end
+
+  reset(false)
+  return true
+end)
+
+-- ── F17 hotkey: hold vs tap ───────────────────────────────────────────────────
+
+hs.hotkey.bind({}, "f17",
+  function()  -- keydown: start held mode
+    heldActionTaken = false
+    heldWatcher:start()
+  end,
+  function()  -- keyup: if nothing was pressed during hold, activate tap/leader mode
+    heldWatcher:stop()
+    if not heldActionTaken then
+      if state.active then reset(false); return end
+      state.active   = true
+      state.category = nil
+      keyWatcher:start()
+      startTimeout()
+    end
+  end,
+  function()  -- key repeat: do nothing (prevents toggle spam while held)
+  end
+)

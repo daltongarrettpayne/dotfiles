@@ -2,9 +2,8 @@
 
 sketchybar --add event aerospace_workspace_change
 
-for sid in $(aerospace list-workspaces --all | sort -r); do
-    num=$(echo "$sid" | sed 's/^0*\([0-9]*\)-.*/\1/')
-    sketchybar --add item space_compact."$sid" right \
+for sid in 01-dev 02-bench 03-hold; do
+    sketchybar --add item space_compact."$sid" center \
         --subscribe space_compact."$sid" aerospace_workspace_change \
         --set space_compact."$sid" \
         background.color=0x44ffffff \
@@ -13,7 +12,7 @@ for sid in $(aerospace list-workspaces --all | sort -r); do
         background.drawing=off \
         label.font.size=14.0 \
         icon.drawing=off \
-        label="$num" \
+        label="$sid" \
         click_script="aerospace workspace $sid" \
         script="$HOME/.config/sketchybar/plugins/aerospacer.sh $sid"
 done
