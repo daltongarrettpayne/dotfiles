@@ -1,5 +1,5 @@
-# tmux-sessionizer binding (commented out - script not installed)
-# bind-key -r f run-shell "tmux neww ~/.local/bin/tmux-sessionizer"
+# Sessionizer: fzf over projects + static sessions (Alt+f)
+bind -n M-f run-shell "~/.local/bin/tmux-sessionizer"
 
 # Essential performance and usability settings
 set -g escape-time 0          # No delay after ESC (crucial for vim)
@@ -37,11 +37,11 @@ bind - split-window -v -c "#{pane_current_path}"
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf)(diff)?$'"
 
 bind -n M-[ if-shell "$is_vim" 'send-keys M-[' 'copy-mode'                    # Alt+[ → nvim normal mode inside nvim, copy-mode elsewhere
-bind -n M-g popup -d '#{pane_current_path}' -w 90% -h 90% -s 'fg=#c0caf5,bg=#1a1b26' -E lazygit    # Alt+g for lazygit popup
+bind -n M-g run "#{@popup-toggle} -w90% -h90% -Ed'#{pane_current_path}' --name=lazygit lazygit"  # Alt+g toggle lazygit popup
 bind -n M-t if-shell -F '#{==:#{session_name},scratch}' \
   'detach-client' \
   'popup -d "#{pane_current_path}" -w 80% -h 80% -s "fg=#c0caf5,bg=#1a1b26" -E "tmux new-session -A -s scratch"'  # Alt+t toggle floating terminal
-bind -n M-s choose-tree -Zs                                              # Alt+s for session list
+unbind -n M-s
 bind -n M-N command-prompt -p "New session name:" "new-session -s '%%'" # Alt+Shift+N to create session
 bind -n M-X confirm-before -p "Kill session #S? (y/n)" kill-session     # Alt+Shift+x to kill session
 bind -n M-| split-window -h -c "#{pane_current_path}"                    # Alt+Shift+\ for vertical split
@@ -90,6 +90,7 @@ set -g window-status-current-format ''
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'alexwforsythe/tmux-which-key'
 set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'loichyan/tmux-toggle-popup'
 
 # Configure tmux-yank to stay in copy mode after yanking
 set -g @yank_action 'copy-pipe'
