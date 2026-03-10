@@ -7,7 +7,8 @@
 --
 -- TAP F17, then key sequence:
 --   ?              cheat sheet (q to dismiss)
---   o              workspace back-and-forth
+--   o              focus back (window history)
+--   i              focus forward (window history)
 --   b              Arc
 --   m              TIDAL
 --   1/2/3          switch workspace
@@ -28,11 +29,67 @@
 --   r → s          reload Sketchybar
 --   r → a          reload Aerospace config
 --
---   Shift on any category action pulls the app into the current workspace:
+--   Shift on any app key pulls the app into the current workspace:
+--   shift+b        pull Arc into current workspace
+--   shift+m        pull TIDAL into current workspace
 --   c → shift+s    pull Slack into current workspace
 
 local AEROSPACE = "/opt/homebrew/bin/aerospace"
 local TIMEOUT   = 2.0
+
+-- ── Window focus history ───────────────────────────────────────────────────
+
+local WIN_HISTORY_MAX = 50
+local winHistory  = {}   -- array of hs.window objects, oldest→newest
+local winPos      = 0    -- cursor into winHistory (0 = empty)
+local navigating  = false
+
+local winFilter = hs.window.filter.new(nil)
+
+winFilter:subscribe(hs.window.filter.windowFocused, function(win)
+  if navigating then return end
+
+  -- Truncate forward history when user manually focuses a window
+  if winPos < #winHistory then
+    for i = winPos + 1, #winHistory do winHistory[i] = nil end
+  end
+
+  winHistory[#winHistory + 1] = win
+  winPos = #winHistory
+
+  if #winHistory > WIN_HISTORY_MAX then
+    table.remove(winHistory, 1)
+    winPos = #winHistory
+  end
+end)
+
+local function isWindowAlive(win)
+  return win and win:id() ~= nil
+end
+
+local function goBack()
+  local target = winPos - 1
+  while target >= 1 and not isWindowAlive(winHistory[target]) do
+    target = target - 1
+  end
+  if target < 1 then hs.alert.show("no history", 0.8); return end
+  winPos     = target
+  navigating = true
+  winHistory[winPos]:focus()
+  hs.timer.doAfter(0.1, function() navigating = false end)
+end
+
+local function goForward()
+  local target = winPos + 1
+  while target <= #winHistory and not isWindowAlive(winHistory[target]) do
+    target = target + 1
+  end
+  if target > #winHistory then hs.alert.show("no forward history", 0.8); return end
+  winPos     = target
+  navigating = true
+  winHistory[winPos]:focus()
+  hs.timer.doAfter(0.1, function() navigating = false end)
+end
 
 -- Modifier keycodes — keypresses to silently ignore in sequential leader mode
 local MODIFIER_CODES = {
@@ -131,7 +188,7 @@ local function showCheatsheet()
   if cheatView then hideCheatsheet(); return end
 
   local sf    = hs.screen.mainScreen():frame()
-  local w, h  = 660, 530
+  local w, h  = 660, 552
   cheatView   = hs.webview.new({
     x = sf.x + (sf.w - w) / 2,
     y = sf.y + (sf.h - h) / 2,
@@ -170,7 +227,8 @@ local function showCheatsheet()
         </div>
         <div class="section">
           <div class="section-title">Tap F17 — direct</div>
-          <div class="row"><span class="key">o</span><span class="desc">back-and-forth</span></div>
+          <div class="row"><span class="key">o</span><span class="desc">focus back</span></div>
+          <div class="row"><span class="key">i</span><span class="desc">focus forward</span></div>
           <div class="row"><span class="key">b</span><span class="desc">Arc</span></div>
           <div class="row"><span class="key">m</span><span class="desc">TIDAL</span></div>
           <div class="row"><span class="key">1 / 2 / 3</span><span class="desc">switch workspace</span></div>
@@ -271,16 +329,17 @@ end
 
 local function startTimeout()
   if state.timer then state.timer:stop() end
-  state.timer = hs.timer.doAfter(TIMEOUT, function() reset(true) end)
+  state.timer = hs.timer.doAfter(TIMEOUT, function() reset(false) end)
 end
 
 local direct = {
-
-  ["1"] = wsSwitch["1"],
-  ["2"] = wsSwitch["2"],
-  ["3"] = wsSwitch["3"],
-  b     = function() hs.application.launchOrFocus("Arc") end,
-  m     = function() hs.application.launchOrFocus("TIDAL") end,
+  ["1"] = { cmd = wsSwitch["1"] },
+  ["2"] = { cmd = wsSwitch["2"] },
+  ["3"] = { cmd = wsSwitch["3"] },
+  b     = { name = "Arc",   id = "company.thebrowser.Browser" },
+  m     = { name = "TIDAL", id = "com.tidal.desktop" },
+  o     = { cmd = goBack },
+  i     = { cmd = goForward },
 }
 
 keyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
@@ -323,7 +382,14 @@ keyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event
   end
 
   if char and direct[char] then
-    direct[char]()
+    local entry = direct[char]
+    if entry.cmd then
+      entry.cmd()
+    elseif shift then
+      pullApp(entry.id)
+    else
+      hs.application.launchOrFocus(entry.name)
+    end
     reset(false)
     return true
   end
